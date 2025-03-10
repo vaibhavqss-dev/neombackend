@@ -5,20 +5,25 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const router = express_1.default.Router();
+const utility_1 = require("../controller/utility");
+router.route("/status").get(utility_1.StatusRoute);
 const auth_1 = require("../controller/auth");
 router.route("/login").post(auth_1.loginUser);
 router.route("/signup").post(auth_1.userSignup);
-// Server Status Route
-const utility_1 = require("../controller/utility");
-router.route("/status").get(utility_1.StatusRoute);
+const authMiddleware_1 = require("../middleware/authMiddleware");
+router.use(authMiddleware_1.authMiddleWare);
+const logsMiddleware_1 = require("../middleware/logsMiddleware");
+router.use(logsMiddleware_1.logsMiddleware);
 const user_1 = require("../controller/user");
 router.route("/user").post(user_1.createUserProfile);
 router.route("/user/likeevent").post(user_1.likeEvent);
 router.route("/user/interestedevent").post(user_1.addInterested);
-router.route("/user/reserveevent").post(user_1.reserveEvent);
+router.route("/user/reserveevent").post(user_1.reserveEvent).get(user_1.getReservedEvents);
 router.route("/user/visitedevent").get(user_1.visitedEvents);
 router.route("/user/addreview").post(user_1.addReviews);
 router.route("/user/recommendation").post(user_1.getRecommendation);
+const notification_1 = require("../controller/notification");
+router.route("/user/notification").get(notification_1.notification);
 router
     .route("/user/:userid")
     .get(user_1.getUserProfile)

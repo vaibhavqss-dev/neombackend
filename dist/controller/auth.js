@@ -34,6 +34,8 @@ const loginUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             success: true,
             message: "Login successful",
             token,
+            username: user.username,
+            user_id: user.id,
         });
     }
     catch (error) {
@@ -52,7 +54,7 @@ const userSignup = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
         }
         const existingUser = yield db_connection_1.Auth.findOne({ where: { username } });
         if (existingUser) {
-            res.status(400).json({ error: "User already exists" });
+            res.status(400).json({ message: "User already exists" });
             return;
         }
         const user = yield db_connection_1.Auth.create({ username, password });

@@ -1,11 +1,6 @@
 import { Request, Response } from "express";
 import { Event } from "../db/db_connection";
 
-/* @param _req: Request
- * @param res: Response
- * @returns void
- */
-
 // postevent
 export const postEvent = async (
   _req: Request,

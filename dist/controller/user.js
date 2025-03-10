@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getTrendingActivity = exports.getRecommendation = exports.addReviews = exports.visitedEvents = exports.reserveEvent = exports.addInterested = exports.likeEvent = exports.changeSettings = exports.deleteUserProfile = exports.getUserProfile = exports.updateProfile = exports.createUserProfile = void 0;
+exports.getReservedEvents = exports.getTrendingActivity = exports.getRecommendation = exports.addReviews = exports.visitedEvents = exports.reserveEvent = exports.addInterested = exports.likeEvent = exports.changeSettings = exports.deleteUserProfile = exports.getUserProfile = exports.updateProfile = exports.createUserProfile = void 0;
 const db_connection_1 = require("../db/db_connection");
 // already used with signup controller
 const createUserProfile = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -375,3 +375,29 @@ const getTrendingActivity = (_req, res) => __awaiter(void 0, void 0, void 0, fun
     }
 });
 exports.getTrendingActivity = getTrendingActivity;
+// reserveed events
+const getReservedEvents = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { userId } = req.user;
+        const reservedEvents = yield db_connection_1.ReservedEvent.findAll({
+            where: { user_id: userId },
+            limit: 20,
+        });
+        if (!reservedEvents) {
+            res.status(404).json({ success: false, message: "No reserved events" });
+            return;
+        }
+        res.status(200).json({
+            success: true,
+            message: "Reserved events retrieved successfully",
+            data: reservedEvents,
+        });
+    }
+    catch (error) {
+        console.error("Error fetching reserved events:", error);
+        res
+            .status(500)
+            .json({ success: false, message: "Failed to retrieve reserved events" });
+    }
+});
+exports.getReservedEvents = getReservedEvents;

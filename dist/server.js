@@ -39,3 +39,4 @@ function SetUpServerAndDB() {
     });
 }
 SetUpServerAndDB();
+exports.default = app;

@@ -11,10 +11,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getEvents = exports.postEvent = void 0;
 const db_connection_1 = require("../db/db_connection");
-/* @param _req: Request
- * @param res: Response
- * @returns void
- */
 // postevent
 const postEvent = (_req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {

@@ -9,7 +9,7 @@ exports.default = (sequelize) => {
             primaryKey: true,
         },
         user_id: {
-            type: sequelize_1.DataTypes.INTEGER,
+            type: sequelize_1.DataTypes.STRING,
             allowNull: false,
         },
         date: {
@@ -17,26 +17,27 @@ exports.default = (sequelize) => {
             allowNull: false,
         },
         time: {
-            type: sequelize_1.DataTypes.STRING,
+            type: sequelize_1.DataTypes.TIME,
             allowNull: false,
         },
         location: {
             type: sequelize_1.DataTypes.STRING,
-            allowNull: false,
+            allowNull: true,
         },
         event_type: {
             type: sequelize_1.DataTypes.STRING,
-            allowNull: false,
+            allowNull: true,
         },
         event_id: {
             type: sequelize_1.DataTypes.STRING,
-            allowNull: false,
+            allowNull: true,
         },
         ip_address: {
             type: sequelize_1.DataTypes.STRING,
             allowNull: false,
         },
     }, {
+        tableName: "logs",
         timestamps: true,
     });
     return logs;

@@ -15,11 +15,12 @@ export const authMiddleWare = async (
       throw new Error("Please authenticate");
     }
     const decoded = jwt.verify(token, process.env.JWT_SECRET || "");
-    const user = await User.findOne({ where: { id: (decoded as any).id } });
-    if (!user) {
-      throw new Error("Please authenticate");
-    }
-    req.user = user;
+    // const user = await User.findOne({ where: { id: (decoded as any).userId } });
+
+    // if (!user) {
+    //   throw new Error("Please authenticate");
+    // }
+    req.user = decoded;
     next();
   } catch (error) {
     res.status(401).send({

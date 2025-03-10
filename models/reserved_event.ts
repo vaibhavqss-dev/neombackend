@@ -8,7 +8,7 @@ interface ReservedEventAttributes {
 
 export default (sequelize: Sequelize) => {
   const reservedEvent = sequelize.define<any>(
-    "reserved_event",
+    "reserved_event", 
     {
       id: {
         type: DataTypes.INTEGER,
@@ -20,7 +20,7 @@ export default (sequelize: Sequelize) => {
         allowNull: false,
       },
       date_from: {
-        type: DataTypes.STRING,
+        type: DataTypes.DATE,
         allowNull: false,
       },
       date_to: {

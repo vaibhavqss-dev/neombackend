@@ -4,7 +4,7 @@ import bodyParser from "body-parser";
 import dotenv from "dotenv";
 dotenv.config();
 import router from "./router/router";
-import { sequelize, testConnection } from "./db/db_connection";
+import { testConnection } from "./db/db_connection";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -27,3 +27,5 @@ async function SetUpServerAndDB() {
 }
 
 SetUpServerAndDB();
+
+export default app;

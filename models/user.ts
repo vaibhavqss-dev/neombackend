@@ -1,7 +1,7 @@
 import { Model, DataTypes, Optional, Sequelize } from "sequelize";
 
 interface UserAttributes {
-  id: number;
+  id: number; 
   name: string;
   email: string;
   mobile_number: string;

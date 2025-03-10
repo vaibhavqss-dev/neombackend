@@ -5,6 +5,17 @@ import { Logs } from "../db/db_connection";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 dotenv.config();
+import fs from "fs";
+
+// Logs table
+// id
+// user_id
+// date
+// time
+// location
+// event_type
+// event_id
+// ip_address
 
 export const logsMiddleware = async (
   req: Request,
@@ -26,8 +37,15 @@ export const logsMiddleware = async (
     userLogs.protocol = req.protocol;
     userLogs.originalUrl = req.originalUrl;
 
-    const newLog = await Logs.create(userLogs);
-    console.log("New log created:", newLog);
+    // save logs to file
+    fs.appendFile("logs.txt", JSON.stringify(userLogs) + "\n", (err: any) => {
+      if (err) {
+        console.error("Error writing logs to file:", err);
+      }
+    });
+
+    // const newLog = await Logs.create(userLogs);
+    // console.log("New log created:", newLog);
     next();
   } catch (error) {
     console.error("Error creating log:", error);

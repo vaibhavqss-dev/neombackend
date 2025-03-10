@@ -48,6 +48,10 @@ exports.default = (sequelize) => {
             type: sequelize_1.DataTypes.STRING,
             allowNull: false,
         },
+        rating: {
+            type: sequelize_1.DataTypes.INTEGER,
+            allowNull: false,
+        },
     }, {
         timestamps: true,
     });

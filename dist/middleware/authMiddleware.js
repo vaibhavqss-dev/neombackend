@@ -14,7 +14,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.authMiddleWare = void 0;
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
-const db_connection_1 = require("../db/db_connection");
 const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
 const authMiddleWare = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
@@ -25,11 +24,11 @@ const authMiddleWare = (req, res, next) => __awaiter(void 0, void 0, void 0, fun
             throw new Error("Please authenticate");
         }
         const decoded = jsonwebtoken_1.default.verify(token, process.env.JWT_SECRET || "");
-        const user = yield db_connection_1.User.findOne({ where: { id: decoded.id } });
-        if (!user) {
-            throw new Error("Please authenticate");
-        }
-        req.user = user;
+        // const user = await User.findOne({ where: { id: (decoded as any).userId } });
+        // if (!user) {
+        //   throw new Error("Please authenticate");
+        // }
+        req.user = decoded;
         next();
     }
     catch (error) {

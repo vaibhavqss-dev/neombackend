@@ -13,7 +13,7 @@ exports.default = (sequelize) => {
             allowNull: false,
         },
         date_from: {
-            type: sequelize_1.DataTypes.STRING,
+            type: sequelize_1.DataTypes.DATE,
             allowNull: false,
         },
         date_to: {

@@ -14,10 +14,19 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.logsMiddleware = void 0;
-const db_connection_1 = require("../db/db_connection");
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
+const fs_1 = __importDefault(require("fs"));
+// Logs table
+// id
+// user_id
+// date
+// time
+// location
+// event_type
+// event_id
+// ip_address
 const logsMiddleware = (req, _res, next) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     try {
@@ -34,8 +43,14 @@ const logsMiddleware = (req, _res, next) => __awaiter(void 0, void 0, void 0, fu
         userLogs.hostname = req.hostname;
         userLogs.protocol = req.protocol;
         userLogs.originalUrl = req.originalUrl;
-        const newLog = yield db_connection_1.Logs.create(userLogs);
-        console.log("New log created:", newLog);
+        // save logs to file
+        fs_1.default.appendFile("logs.txt", JSON.stringify(userLogs) + "\n", (err) => {
+            if (err) {
+                console.error("Error writing logs to file:", err);
+            }
+        });
+        // const newLog = await Logs.create(userLogs);
+        // console.log("New log created:", newLog);
         next();
     }
     catch (error) {

@@ -433,3 +433,31 @@ export const getTrendingActivity = async (
       .json({ success: false, message: "Failed to retrieve trending events" });
   }
 };
+
+// reserveed events
+export const getReservedEvents = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const { userId } = req.user;
+    const reservedEvents = await ReservedEvent.findAll({
+      where: { user_id: userId },
+      limit: 20,
+    });
+    if (!reservedEvents) {
+      res.status(404).json({ success: false, message: "No reserved events" });
+      return;
+    }
+    res.status(200).json({
+      success: true,
+      message: "Reserved events retrieved successfully",
+      data: reservedEvents,
+    });
+  } catch (error) {
+    console.error("Error fetching reserved events:", error);
+    res
+      .status(500)
+      .json({ success: false, message: "Failed to retrieve reserved events" });
+  }
+};
