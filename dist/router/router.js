@@ -19,9 +19,9 @@ router.route("/user").post(user_1.createUserProfile);
 router.route("/user/likeevent").post(user_1.likeEvent);
 router.route("/user/interestedevent").post(user_1.addInterested);
 router.route("/user/reserveevent").post(user_1.reserveEvent).get(user_1.getReservedEvents);
-router.route("/user/visitedevent").get(user_1.visitedEvents);
-router.route("/user/addreview").post(user_1.addReviews);
-router.route("/user/recommendation").post(user_1.getRecommendation);
+router.route("/user/visitedevent").get(user_1.fetchVisitedEvents);
+router.route("/user/review").post(user_1.addReviews).get(user_1.getReviews);
+router.route("/user/recommendation").get(user_1.getRecommendation);
 const notification_1 = require("../controller/notification");
 router.route("/user/notification").get(notification_1.notification);
 router
@@ -30,10 +30,12 @@ router
     .delete(user_1.deleteUserProfile)
     .patch(user_1.updateProfile);
 router.route("/user/settings").patch(user_1.changeSettings);
-// Event Routes
 const events_1 = require("../controller/events");
-router.route("/events").post(events_1.getEvents);
-router.route("/events/post").post(events_1.postEvent);
-// trending events
+router
+    .route("/events")
+    .post(events_1.postEvent)
+    .get(events_1.getEvents)
+    .patch(events_1.updateEvent)
+    .delete(events_1.deleteEvent);
 router.route("/events/trending").get(user_1.getTrendingActivity);
 exports.default = router;

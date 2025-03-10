@@ -1,7 +1,7 @@
 import { Model, DataTypes, Optional, Sequelize } from "sequelize";
 
 interface UserAttributes {
-  id: number; 
+  id: number;
   name: string;
   email: string;
   mobile_number: string;
@@ -12,37 +12,83 @@ interface UserAttributes {
 }
 
 interface UserCreationAttributes
-  extends Optional<UserAttributes, "id" | "likes"> {}
+  extends Optional<UserAttributes, "id" | "likes" | "interests"> {}
 
 class User
   extends Model<UserAttributes, UserCreationAttributes>
   implements UserAttributes
 {
-  public id!: number;
-  public name!: string;
-  public email!: string;
-  public mobile_number!: string;
-  public interests!: string[];
-  public likes!: string[];
-  public readonly createdAt!: Date;
-  public readonly updatedAt!: Date;
+  // Remove explicit property declarations that shadow Sequelize attributes
+  // Sequelize will automatically generate getters and setters for these
 
   public async addLikedEvent(eventId: string): Promise<boolean> {
-    if (!this.likes.includes(eventId)) {
-      this.likes.push(eventId);
-      await this.save();
-      return true;
+    try {
+      if (!eventId) {
+        console.error("Invalid event ID provided");
+        return false;
+      }
+      const currentLikes = (this.get("likes") as string[] | null) || [];
+      if (!currentLikes.includes(eventId)) {
+        this.set("likes", [...currentLikes, eventId]);
+        await this.save();
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error("Error adding liked event:", error);
+      return false;
     }
-    return false;
   }
+
   public async addInterested(interest: string): Promise<boolean> {
-    if (!this.interests.includes(interest)) {
-      this.interests.push(interest);
-      await this.save();
-      return true;
+    try {
+      if (!interest) {
+        console.error("Invalid interest provided");
+        return false;
+      }
+      const currentInterests = (this.get("interests") as string[] | null) || [];
+      if (!currentInterests.includes(interest)) {
+        this.set("interests", [...currentInterests, interest]);
+        await this.save();
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error("Error adding interest:", error);
+      return false;
     }
-    return false;
   }
+
+  // Type assertions for Sequelize-generated getters
+  public get id(): number {
+    return this.getDataValue("id");
+  }
+
+  public get name(): string {
+    return this.getDataValue("name");
+  }
+
+  public get email(): string {
+    return this.getDataValue("email");
+  }
+
+  public get mobile_number(): string {
+    return this.getDataValue("mobile_number");
+  }
+
+  public get interests(): string[] {
+    return this.getDataValue("interests") || [];
+  }
+
+  public get likes(): string[] {
+    return this.getDataValue("likes") || [];
+  }
+  // public get createdAt(): Date {
+  //   return this.getDataValue("createdAt");
+  // }
+  // public get updatedAt(): Date {
+  //   return this.getDataValue("updatedAt");
+  // }
 }
 
 export default (sequelize: Sequelize) => {

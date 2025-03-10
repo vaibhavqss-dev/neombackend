@@ -16,12 +16,16 @@ exports.default = (sequelize) => {
             type: sequelize_1.DataTypes.STRING,
             allowNull: false,
         },
+        subtext: {
+            type: sequelize_1.DataTypes.STRING,
+            allowNull: false,
+        },
         date: {
             type: sequelize_1.DataTypes.DATE,
             allowNull: false,
         },
         time: {
-            type: sequelize_1.DataTypes.STRING,
+            type: sequelize_1.DataTypes.TIME,
             allowNull: false,
         },
         latitude: {
@@ -40,15 +44,12 @@ exports.default = (sequelize) => {
             type: sequelize_1.DataTypes.STRING,
             allowNull: false,
         },
-        subtext: {
-            type: sequelize_1.DataTypes.STRING,
-            allowNull: false,
-        },
         image_urls: {
-            type: sequelize_1.DataTypes.STRING,
+            type: sequelize_1.DataTypes.JSON,
             allowNull: false,
+            defaultValue: [],
         },
-        rating: {
+        overall_rating: {
             type: sequelize_1.DataTypes.INTEGER,
             allowNull: false,
         },

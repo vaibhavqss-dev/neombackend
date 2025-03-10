@@ -1,4 +1,3 @@
-import sequelize from "sequelize";
 import { Sequelize, DataTypes } from "sequelize";
 
 export default (sequelize: Sequelize) => {
@@ -18,12 +17,16 @@ export default (sequelize: Sequelize) => {
         type: DataTypes.STRING,
         allowNull: false,
       },
+      subtext: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
       date: {
         type: DataTypes.DATE,
         allowNull: false,
       },
       time: {
-        type: DataTypes.STRING,
+        type: DataTypes.TIME,
         allowNull: false,
       },
       latitude: {
@@ -42,15 +45,12 @@ export default (sequelize: Sequelize) => {
         type: DataTypes.STRING,
         allowNull: false,
       },
-      subtext: {
-        type: DataTypes.STRING,
-        allowNull: false,
-      },
       image_urls: {
-        type: DataTypes.STRING,
+        type: DataTypes.JSON,
         allowNull: false,
+        defaultValue: [],
       },
-      rating: {
+      overall_rating: {
         type: DataTypes.INTEGER,
         allowNull: false,
       },

@@ -1,13 +1,4 @@
 "use strict";
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -16,18 +7,13 @@ exports.authMiddleWare = void 0;
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
-const authMiddleWare = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a;
+const authMiddleWare = async (req, res, next) => {
     try {
-        const token = (_a = req.header("Authorization")) === null || _a === void 0 ? void 0 : _a.replace("Bearer ", "");
+        const token = req.header("Authorization")?.replace("Bearer ", "");
         if (!token) {
             throw new Error("Please authenticate");
         }
         const decoded = jsonwebtoken_1.default.verify(token, process.env.JWT_SECRET || "");
-        // const user = await User.findOne({ where: { id: (decoded as any).userId } });
-        // if (!user) {
-        //   throw new Error("Please authenticate");
-        // }
         req.user = decoded;
         next();
     }
@@ -36,5 +22,5 @@ const authMiddleWare = (req, res, next) => __awaiter(void 0, void 0, void 0, fun
             error: error instanceof Error ? error.message : "Authentication failed",
         });
     }
-});
+};
 exports.authMiddleWare = authMiddleWare;

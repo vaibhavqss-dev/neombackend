@@ -1,14 +1,4 @@
 "use strict";
-// this will create of every request made to the server
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -18,19 +8,9 @@ const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
 const fs_1 = __importDefault(require("fs"));
-// Logs table
-// id
-// user_id
-// date
-// time
-// location
-// event_type
-// event_id
-// ip_address
-const logsMiddleware = (req, _res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a;
+const logsMiddleware = async (req, _res, next) => {
     try {
-        const token = (_a = req.header("Authorization")) === null || _a === void 0 ? void 0 : _a.replace("Bearer ", "");
+        const token = req.header("Authorization")?.replace("Bearer ", "");
         if (!token) {
             throw new Error("Please authenticate");
         }
@@ -43,19 +23,16 @@ const logsMiddleware = (req, _res, next) => __awaiter(void 0, void 0, void 0, fu
         userLogs.hostname = req.hostname;
         userLogs.protocol = req.protocol;
         userLogs.originalUrl = req.originalUrl;
-        // save logs to file
         fs_1.default.appendFile("logs.txt", JSON.stringify(userLogs) + "\n", (err) => {
             if (err) {
                 console.error("Error writing logs to file:", err);
             }
         });
-        // const newLog = await Logs.create(userLogs);
-        // console.log("New log created:", newLog);
         next();
     }
     catch (error) {
         console.error("Error creating log:", error);
         next();
     }
-});
+};
 exports.logsMiddleware = logsMiddleware;

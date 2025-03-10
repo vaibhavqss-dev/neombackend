@@ -3,11 +3,11 @@ import {
   Auth,
   User,
   ReservedEvent,
-  VisitedEvent,
   Reviews,
   Event,
   Logs,
 } from "../db/db_connection";
+import { Op } from "sequelize";
 
 // already used with signup controller
 export const createUserProfile = async (
@@ -165,8 +165,10 @@ export const changeSettings = async (
 // when user likes any event it's get's here
 export const likeEvent = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { user_id, event_id } = req.body;
-    const user = await User.findByPk(user_id);
+    console.log(req.user);
+    const { userId: user_id } = req.user;
+    const { event_id } = req.body;
+    const user = await User.findOne({ where: { id: user_id } });
     if (!user) {
       res.status(404).json({ success: false, message: "User not found" });
       return;
@@ -226,14 +228,14 @@ export const reserveEvent = async (
 ): Promise<void> => {
   try {
     const {
-      user_id,
       event_id,
       date_from,
       date_to,
-      name,
+      event_name,
       no_of_guest,
-      event_type,
+      event_category,
     } = req.body;
+    const { userId: user_id } = req.user;
     const user = await User.findByPk(user_id);
     if (!user) {
       res.status(404).json({ success: false, message: "User not found" });
@@ -244,9 +246,9 @@ export const reserveEvent = async (
       event_id,
       date_from,
       date_to,
-      name,
+      event_name,
       no_of_guest,
-      event_type,
+      event_category,
     });
     if (!isReserved) {
       res
@@ -267,34 +269,32 @@ export const reserveEvent = async (
 };
 
 // visitedevents
-export const visitedEvents = async (
+export const fetchVisitedEvents = async (
   req: Request,
   res: Response
 ): Promise<void> => {
   try {
-    const { user_id, event_id, date, time, location, event_type } = req.body;
+    const { userId: user_id } = req.user;
+    const { event_id, date, time, location, event_type } = req.body;
     const user = await User.findByPk(user_id);
     if (!user) {
       res.status(404).json({ success: false, message: "User not found" });
       return;
     }
-    let isVisited = await VisitedEvent.create({
-      user_id,
-      event_id,
-      date,
-      time,
-      location,
-      event_type,
+    let isVisited = await ReservedEvent.findAll({
+      where: {
+        user_id,
+        date_to: {
+          [Op.lt]: new Date(),
+        },
+      },
+      limit: 20,
     });
-    if (!isVisited) {
-      res
-        .status(400)
-        .json({ success: false, message: "Event already visited" });
-      return;
-    }
     res.status(200).json({
       success: true,
-      message: "Event Added to visited events successfully",
+      number: isVisited.length,
+      message: "Visited events retrieved successfully",
+      events: isVisited,
     });
   } catch (error) {
     console.error("Error visiting event:", error);
@@ -308,8 +308,8 @@ export const addReviews = async (
   res: Response
 ): Promise<void> => {
   try {
+    const { userId: user_id } = req.user;
     const {
-      user_id,
       quality_of_event,
       service_of_event,
       facilites_of_event,
@@ -317,9 +317,8 @@ export const addReviews = async (
       operator_of_event,
       event_name,
       event_id,
-      review,
       location,
-      event_type,
+      event_category,
       comment,
     } = req.body;
 
@@ -336,24 +335,30 @@ export const addReviews = async (
         staffPoliteness +
         operator_of_event) /
       5;
-    let isReviewed = await Reviews.create({
-      user_id,
-      event_id,
-      username: user.name,
-      comment,
-      date: new Date(),
-      time: new Date().toLocaleTimeString(),
-      location,
-      event_type,
-      event_name,
-      rating,
-      review,
-    });
-    if (!isReviewed) {
-      res
-        .status(400)
-        .json({ success: false, message: "Event already reviewed" });
-      return;
+    try {
+      let isReviewed = await Reviews.create({
+        user_id,
+        event_id,
+        username: user.name,
+        comment,
+        date: new Date(),
+        time: new Date().toLocaleTimeString(),
+        location,
+        event_category,
+        event_name,
+        rating,
+      });
+    } catch (error) {
+      if (
+        error instanceof Error &&
+        error.name === "SequelizeUniqueConstraintError"
+      ) {
+        res
+          .status(400)
+          .json({ success: false, message: "Event already reviewed" });
+        return;
+      }
+      throw error;
     }
     res.status(200).json({
       success: true,
@@ -365,14 +370,52 @@ export const addReviews = async (
   }
 };
 
+// getreview
+export const getReviews = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const { userId: user_id } = req.user;
+    const { event_id } = req.query;
+    const query: any = {};
+
+    if (event_id) {
+      query.event_id = event_id;
+    }
+    if (user_id) {
+      query.user_id = user_id;
+    }
+
+    const reviews = await Reviews.findAll({
+      where: query,
+      limit: 20,
+    });
+    if (!reviews) {
+      res.status(404).json({ success: false, message: "No reviews found" });
+      return;
+    }
+    res.status(200).json({
+      success: true,
+      message: "Reviews retrieved successfully",
+      reviews: reviews,
+    });
+  } catch (error) {
+    console.error("Error fetching reviews:", error);
+    res
+      .status(500)
+      .json({ success: false, message: "Failed to fetch reviews" });
+  }
+};
+
 // recommendation
 export const getRecommendation = async (
   req: Request,
   res: Response
 ): Promise<void> => {
   try {
-    const { user_id } = req.body;
-    const user = await User.findByPk(user_id);
+    const { userId } = req.user;
+    const user = await User.findByPk(userId);
     if (!user) {
       res.status(404).json({ success: false, message: "User not found" });
       return;
@@ -394,7 +437,7 @@ export const getRecommendation = async (
     res.status(200).json({
       success: true,
       message: "Recommendation retrieved successfully",
-      data: recommendation,
+      event: recommendation,
     });
   } catch (error) {
     console.error("Error fetching recommendation:", error);

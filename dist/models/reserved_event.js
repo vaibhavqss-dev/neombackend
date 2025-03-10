@@ -20,7 +20,7 @@ exports.default = (sequelize) => {
             type: sequelize_1.DataTypes.DATE,
             allowNull: false,
         },
-        name: {
+        event_name: {
             type: sequelize_1.DataTypes.STRING,
             allowNull: false,
         },
@@ -29,7 +29,7 @@ exports.default = (sequelize) => {
             allowNull: false,
             defaultValue: 1,
         },
-        event_type: {
+        event_category: {
             type: sequelize_1.DataTypes.STRING,
             allowNull: false,
         },

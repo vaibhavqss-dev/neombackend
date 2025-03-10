@@ -1,39 +1,29 @@
 "use strict";
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getReservedEvents = exports.getTrendingActivity = exports.getRecommendation = exports.addReviews = exports.visitedEvents = exports.reserveEvent = exports.addInterested = exports.likeEvent = exports.changeSettings = exports.deleteUserProfile = exports.getUserProfile = exports.updateProfile = exports.createUserProfile = void 0;
+exports.getReservedEvents = exports.getTrendingActivity = exports.getRecommendation = exports.getReviews = exports.addReviews = exports.fetchVisitedEvents = exports.reserveEvent = exports.addInterested = exports.likeEvent = exports.changeSettings = exports.deleteUserProfile = exports.getUserProfile = exports.updateProfile = exports.createUserProfile = void 0;
 const db_connection_1 = require("../db/db_connection");
-// already used with signup controller
-const createUserProfile = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+const sequelize_1 = require("sequelize");
+const createUserProfile = async (req, res) => {
     try {
         const { username, password } = req.body;
-        const existingUser = yield db_connection_1.Auth.findOne({ where: { username } });
+        const existingUser = await db_connection_1.Auth.findOne({ where: { username } });
         if (existingUser) {
             res.status(400).json({ error: "User already exists" });
             return;
         }
-        const user = yield db_connection_1.Auth.create({ username, password });
+        const user = await db_connection_1.Auth.create({ username, password });
         res.status(201).json({ message: "User created successfully", user });
     }
     catch (error) {
         console.error("Error creating user:", error);
         res.status(500).json({ success: false, message: "Failed to create user" });
     }
-});
+};
 exports.createUserProfile = createUserProfile;
-const updateProfile = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+const updateProfile = async (req, res) => {
     try {
         const { name, email, mobilenumber, interest, userId } = req.body;
-        // Check if user exists
-        const user = yield db_connection_1.Auth.findByPk(userId);
+        const user = await db_connection_1.Auth.findByPk(userId);
         if (!user) {
             res.status(404).json({ success: false, message: "User not found" });
             return;
@@ -47,7 +37,7 @@ const updateProfile = (req, res) => __awaiter(void 0, void 0, void 0, function* 
             updateData.mobilenumber = mobilenumber;
         if (interest !== undefined)
             updateData.interest = interest;
-        yield user.update(updateData);
+        await user.update(updateData);
         res.status(200).json({
             success: true,
             message: "User updated successfully",
@@ -58,12 +48,12 @@ const updateProfile = (req, res) => __awaiter(void 0, void 0, void 0, function* 
         console.error("Error updating user:", error);
         res.status(500).json({ success: false, message: "Failed to update user" });
     }
-});
+};
 exports.updateProfile = updateProfile;
-const getUserProfile = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+const getUserProfile = async (req, res) => {
     try {
         const userId = req.params.userid;
-        const user = yield db_connection_1.Auth.findByPk(userId);
+        const user = await db_connection_1.Auth.findByPk(userId);
         if (!user) {
             res.status(404).json({ success: false, message: "User not found" });
             return;
@@ -80,17 +70,17 @@ const getUserProfile = (req, res) => __awaiter(void 0, void 0, void 0, function*
             .status(500)
             .json({ success: false, message: "Failed to retrieve user" });
     }
-});
+};
 exports.getUserProfile = getUserProfile;
-const deleteUserProfile = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+const deleteUserProfile = async (req, res) => {
     try {
         const userId = req.params.userid;
-        const user = yield db_connection_1.Auth.findByPk(userId);
+        const user = await db_connection_1.Auth.findByPk(userId);
         if (!user) {
             res.status(404).json({ success: false, message: "User not found" });
             return;
         }
-        yield user.destroy();
+        await user.destroy();
         res.status(200).json({
             success: true,
             message: "User deleted successfully",
@@ -100,13 +90,12 @@ const deleteUserProfile = (req, res) => __awaiter(void 0, void 0, void 0, functi
         console.error("Error deleting user:", error);
         res.status(500).json({ success: false, message: "Failed to delete user" });
     }
-});
+};
 exports.deleteUserProfile = deleteUserProfile;
-// change the settings of user given the body parameters
-const changeSettings = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+const changeSettings = async (req, res) => {
     try {
         const { user_id, personalandAccount, operator, managedata, password_security, notification_email, notification_sms, notification_personalized, language, } = req.body;
-        const user = yield db_connection_1.Auth.findByPk(user_id);
+        const user = await db_connection_1.Auth.findByPk(user_id);
         if (!user) {
             res.status(404).json({ success: false, message: "User not found" });
             return;
@@ -128,7 +117,7 @@ const changeSettings = (req, res) => __awaiter(void 0, void 0, void 0, function*
             updateSetting.notification_personalized = notification_personalized;
         if (language !== undefined)
             updateSetting.language = language;
-        yield user.update({ updateSetting });
+        await user.update({ updateSetting });
         res.status(200).json({
             success: true,
             message: "Settings updated successfully",
@@ -141,18 +130,19 @@ const changeSettings = (req, res) => __awaiter(void 0, void 0, void 0, function*
             .status(500)
             .json({ success: false, message: "Failed to update settings" });
     }
-});
+};
 exports.changeSettings = changeSettings;
-// when user likes any event it's get's here
-const likeEvent = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+const likeEvent = async (req, res) => {
     try {
-        const { user_id, event_id } = req.body;
-        const user = yield db_connection_1.User.findByPk(user_id);
+        console.log(req.user);
+        const { userId: user_id } = req.user;
+        const { event_id } = req.body;
+        const user = await db_connection_1.User.findOne({ where: { id: user_id } });
         if (!user) {
             res.status(404).json({ success: false, message: "User not found" });
             return;
         }
-        let isOk = yield user.addLikedEvent(event_id);
+        let isOk = await user.addLikedEvent(event_id);
         if (!isOk) {
             res.status(400).json({ success: false, message: "Event already liked" });
             return;
@@ -166,18 +156,17 @@ const likeEvent = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         console.error("Error liking event:", error);
         res.status(500).json({ success: false, message: "Failed to like event" });
     }
-});
+};
 exports.likeEvent = likeEvent;
-// add to interested events
-const addInterested = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+const addInterested = async (req, res) => {
     try {
         const { user_id, interest } = req.body;
-        const user = yield db_connection_1.User.findByPk(user_id);
+        const user = await db_connection_1.User.findByPk(user_id);
         if (!user) {
             res.status(404).json({ success: false, message: "User not found" });
             return;
         }
-        let isAdded = yield user.addInterested(interest);
+        let isAdded = await user.addInterested(interest);
         if (!isAdded) {
             res
                 .status(400)
@@ -195,25 +184,25 @@ const addInterested = (req, res) => __awaiter(void 0, void 0, void 0, function* 
             .status(500)
             .json({ success: false, message: "Failed to add interested event" });
     }
-});
+};
 exports.addInterested = addInterested;
-//reserveEvents
-const reserveEvent = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+const reserveEvent = async (req, res) => {
     try {
-        const { user_id, event_id, date_from, date_to, name, no_of_guest, event_type, } = req.body;
-        const user = yield db_connection_1.User.findByPk(user_id);
+        const { event_id, date_from, date_to, event_name, no_of_guest, event_category, } = req.body;
+        const { userId: user_id } = req.user;
+        const user = await db_connection_1.User.findByPk(user_id);
         if (!user) {
             res.status(404).json({ success: false, message: "User not found" });
             return;
         }
-        let isReserved = yield db_connection_1.ReservedEvent.create({
+        let isReserved = await db_connection_1.ReservedEvent.create({
             user_id,
             event_id,
             date_from,
             date_to,
-            name,
+            event_name,
             no_of_guest,
-            event_type,
+            event_category,
         });
         if (!isReserved) {
             res
@@ -232,47 +221,44 @@ const reserveEvent = (req, res) => __awaiter(void 0, void 0, void 0, function* (
             .status(500)
             .json({ success: false, message: "Failed to reserve event" });
     }
-});
+};
 exports.reserveEvent = reserveEvent;
-// visitedevents
-const visitedEvents = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+const fetchVisitedEvents = async (req, res) => {
     try {
-        const { user_id, event_id, date, time, location, event_type } = req.body;
-        const user = yield db_connection_1.User.findByPk(user_id);
+        const { userId: user_id } = req.user;
+        const { event_id, date, time, location, event_type } = req.body;
+        const user = await db_connection_1.User.findByPk(user_id);
         if (!user) {
             res.status(404).json({ success: false, message: "User not found" });
             return;
         }
-        let isVisited = yield db_connection_1.VisitedEvent.create({
-            user_id,
-            event_id,
-            date,
-            time,
-            location,
-            event_type,
+        let isVisited = await db_connection_1.ReservedEvent.findAll({
+            where: {
+                user_id,
+                date_to: {
+                    [sequelize_1.Op.lt]: new Date(),
+                },
+            },
+            limit: 20,
         });
-        if (!isVisited) {
-            res
-                .status(400)
-                .json({ success: false, message: "Event already visited" });
-            return;
-        }
         res.status(200).json({
             success: true,
-            message: "Event Added to visited events successfully",
+            number: isVisited.length,
+            message: "Visited events retrieved successfully",
+            events: isVisited,
         });
     }
     catch (error) {
         console.error("Error visiting event:", error);
         res.status(500).json({ success: false, message: "Failed to visit event" });
     }
-});
-exports.visitedEvents = visitedEvents;
-// addreviews
-const addReviews = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+};
+exports.fetchVisitedEvents = fetchVisitedEvents;
+const addReviews = async (req, res) => {
     try {
-        const { user_id, quality_of_event, service_of_event, facilites_of_event, staffPoliteness, operator_of_event, event_name, event_id, review, location, event_type, comment, } = req.body;
-        const user = yield db_connection_1.User.findByPk(user_id);
+        const { userId: user_id } = req.user;
+        const { quality_of_event, service_of_event, facilites_of_event, staffPoliteness, operator_of_event, event_name, event_id, location, event_category, comment, } = req.body;
+        const user = await db_connection_1.User.findByPk(user_id);
         if (!user) {
             res.status(404).json({ success: false, message: "User not found" });
             return;
@@ -283,24 +269,29 @@ const addReviews = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
             staffPoliteness +
             operator_of_event) /
             5;
-        let isReviewed = yield db_connection_1.Reviews.create({
-            user_id,
-            event_id,
-            username: user.name,
-            comment,
-            date: new Date(),
-            time: new Date().toLocaleTimeString(),
-            location,
-            event_type,
-            event_name,
-            rating,
-            review,
-        });
-        if (!isReviewed) {
-            res
-                .status(400)
-                .json({ success: false, message: "Event already reviewed" });
-            return;
+        try {
+            let isReviewed = await db_connection_1.Reviews.create({
+                user_id,
+                event_id,
+                username: user.name,
+                comment,
+                date: new Date(),
+                time: new Date().toLocaleTimeString(),
+                location,
+                event_category,
+                event_name,
+                rating,
+            });
+        }
+        catch (error) {
+            if (error instanceof Error &&
+                error.name === "SequelizeUniqueConstraintError") {
+                res
+                    .status(400)
+                    .json({ success: false, message: "Event already reviewed" });
+                return;
+            }
+            throw error;
         }
         res.status(200).json({
             success: true,
@@ -311,18 +302,50 @@ const addReviews = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
         console.error("Error reviewing event:", error);
         res.status(500).json({ success: false, message: "Failed to review event" });
     }
-});
+};
 exports.addReviews = addReviews;
-// recommendation
-const getRecommendation = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+const getReviews = async (req, res) => {
     try {
-        const { user_id } = req.body;
-        const user = yield db_connection_1.User.findByPk(user_id);
+        const { userId: user_id } = req.user;
+        const { event_id } = req.query;
+        const query = {};
+        if (event_id) {
+            query.event_id = event_id;
+        }
+        if (user_id) {
+            query.user_id = user_id;
+        }
+        const reviews = await db_connection_1.Reviews.findAll({
+            where: query,
+            limit: 20,
+        });
+        if (!reviews) {
+            res.status(404).json({ success: false, message: "No reviews found" });
+            return;
+        }
+        res.status(200).json({
+            success: true,
+            message: "Reviews retrieved successfully",
+            reviews: reviews,
+        });
+    }
+    catch (error) {
+        console.error("Error fetching reviews:", error);
+        res
+            .status(500)
+            .json({ success: false, message: "Failed to fetch reviews" });
+    }
+};
+exports.getReviews = getReviews;
+const getRecommendation = async (req, res) => {
+    try {
+        const { userId } = req.user;
+        const user = await db_connection_1.User.findByPk(userId);
         if (!user) {
             res.status(404).json({ success: false, message: "User not found" });
             return;
         }
-        const recommendation = yield db_connection_1.Event.findAll({
+        const recommendation = await db_connection_1.Event.findAll({
             where: {
                 category: user.interests.length == 0 ? "joy" : user.interests[0],
             },
@@ -338,7 +361,7 @@ const getRecommendation = (req, res) => __awaiter(void 0, void 0, void 0, functi
         res.status(200).json({
             success: true,
             message: "Recommendation retrieved successfully",
-            data: recommendation,
+            event: recommendation,
         });
     }
     catch (error) {
@@ -347,12 +370,11 @@ const getRecommendation = (req, res) => __awaiter(void 0, void 0, void 0, functi
             .status(500)
             .json({ success: false, message: "Failed to retrieve recommendation" });
     }
-});
+};
 exports.getRecommendation = getRecommendation;
-// trending activity
-const getTrendingActivity = (_req, res) => __awaiter(void 0, void 0, void 0, function* () {
+const getTrendingActivity = async (_req, res) => {
     try {
-        const trending = yield db_connection_1.Logs.findAll({
+        const trending = await db_connection_1.Logs.findAll({
             limit: 200,
         });
         const events = db_connection_1.Event.findAll({
@@ -373,13 +395,12 @@ const getTrendingActivity = (_req, res) => __awaiter(void 0, void 0, void 0, fun
             .status(500)
             .json({ success: false, message: "Failed to retrieve trending events" });
     }
-});
+};
 exports.getTrendingActivity = getTrendingActivity;
-// reserveed events
-const getReservedEvents = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+const getReservedEvents = async (req, res) => {
     try {
         const { userId } = req.user;
-        const reservedEvents = yield db_connection_1.ReservedEvent.findAll({
+        const reservedEvents = await db_connection_1.ReservedEvent.findAll({
             where: { user_id: userId },
             limit: 20,
         });
@@ -399,5 +420,5 @@ const getReservedEvents = (req, res) => __awaiter(void 0, void 0, void 0, functi
             .status(500)
             .json({ success: false, message: "Failed to retrieve reserved events" });
     }
-});
+};
 exports.getReservedEvents = getReservedEvents;

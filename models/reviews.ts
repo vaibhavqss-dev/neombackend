@@ -30,20 +30,22 @@ export default (sequelize: Sequelize) => {
         allowNull: false,
       },
       time: {
-        type: DataTypes.STRING,
+        type: DataTypes.TIME,
         allowNull: false,
+        defaultValue: DataTypes.NOW,
       },
       location: {
         type: DataTypes.STRING,
         allowNull: false,
       },
-      event_type: {
+      event_category: {
         type: DataTypes.STRING,
         allowNull: false,
       },
       event_id: {
         type: DataTypes.STRING,
-        allowNull: false,
+        allowNull: false, 
+        unique: true,
       },
     },
     {
