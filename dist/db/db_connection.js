@@ -57,11 +57,93 @@ const TrendingActivity = (0, Trending_activity_1.default)(sequelize);
 exports.TrendingActivity = TrendingActivity;
 const MyFeedback = (0, myfeedback_1.default)(sequelize);
 exports.MyFeedback = MyFeedback;
+User.hasOne(Auth, {
+    foreignKey: "user_id",
+    onDelete: "CASCADE",
+    constraints: true,
+});
+Auth.belongsTo(User, {
+    foreignKey: "user_id",
+    onDelete: "CASCADE",
+    constraints: true,
+});
+User.hasOne(Setting, {
+    foreignKey: "user_id",
+    onDelete: "CASCADE",
+    constraints: true,
+});
+Setting.belongsTo(User, {
+    foreignKey: "user_id",
+    onDelete: "CASCADE",
+    constraints: true,
+});
+User.hasMany(ReservedEvent, {
+    foreignKey: "user_id",
+    onDelete: "CASCADE",
+    constraints: true,
+});
+ReservedEvent.belongsTo(User, {
+    foreignKey: "user_id",
+    onDelete: "CASCADE",
+    constraints: true,
+});
+Reviews.belongsTo(User, {
+    foreignKey: "user_id",
+    onDelete: "CASCADE",
+    constraints: true,
+});
+User.hasMany(Reviews, {
+    foreignKey: "user_id",
+});
+VisitedEvent.belongsTo(User, {
+    foreignKey: "user_id",
+    constraints: true,
+    onDelete: "CASCADE",
+});
+User.hasMany(VisitedEvent, {
+    foreignKey: "user_id",
+    onDelete: "CASCADE",
+});
+VisitedEvent.belongsTo(Event, {
+    foreignKey: "event_id",
+});
+Event.hasMany(VisitedEvent, {
+    foreignKey: "event_id",
+    constraints: true,
+});
+MyFeedback.belongsTo(User, {
+    foreignKey: "user_id",
+    onDelete: "CASCADE",
+    constraints: true,
+});
+User.hasMany(MyFeedback, {
+    foreignKey: "user_id",
+    onDelete: "CASCADE",
+    constraints: true,
+});
+MyFeedback.belongsTo(Event, {
+    foreignKey: "event_id",
+    constraints: true,
+});
+Event.hasMany(MyFeedback, {
+    foreignKey: "event_id",
+    constraints: true,
+});
+TrendingActivity.belongsTo(Event, {
+    foreignKey: "event_id",
+    constraints: true,
+    onDelete: "CASCADE",
+});
+Event.hasMany(TrendingActivity, {
+    foreignKey: "event_id",
+    constraints: true,
+    onDelete: "CASCADE",
+});
 async function testConnection() {
     try {
         await sequelize.authenticate();
         console.log("Database connection established successfully.");
-        await sequelize.sync({ force: false });
+        await sequelize.sync({ force: true });
         console.log("Database models synchronized.");
     }
     catch (error) {

@@ -8,7 +8,7 @@ export default (sequelize: Sequelize) => {
       primaryKey: true,
     },
     event_id: {
-      type: DataTypes.STRING,
+      type: DataTypes.INTEGER,
       allowNull: false,
     },
     time: {

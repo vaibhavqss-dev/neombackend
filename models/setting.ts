@@ -22,10 +22,6 @@ export default (sequelize: Sequelize) => {
         autoIncrement: true,
         primaryKey: true,
       },
-      userid: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
-      },
       personalandAccount: {
         type: DataTypes.BOOLEAN,
         defaultValue: true,

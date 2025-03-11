@@ -8,10 +8,6 @@ exports.default = (sequelize) => {
             autoIncrement: true,
             primaryKey: true,
         },
-        userid: {
-            type: sequelize_1.DataTypes.INTEGER,
-            allowNull: false,
-        },
         personalandAccount: {
             type: sequelize_1.DataTypes.BOOLEAN,
             defaultValue: true,

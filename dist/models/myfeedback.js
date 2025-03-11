@@ -41,7 +41,7 @@ exports.default = (sequelize) => {
             allowNull: false,
         },
         event_id: {
-            type: sequelize_1.DataTypes.STRING,
+            type: sequelize_1.DataTypes.INTEGER,
             allowNull: false,
         },
     }, {

@@ -42,7 +42,7 @@ export default (sequelize: Sequelize) => {
         allowNull: false,
       },
       event_id: {
-        type: DataTypes.STRING,
+        type: DataTypes.INTEGER,
         allowNull: false,
       },
     },
