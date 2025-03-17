@@ -28,22 +28,23 @@ import {
   getReservedEvents,
   getReviews,
 } from "../controller/user";
-router.route("/user").post(createUserProfile);
+
+router
+  .route("/user/profile")
+  .post(createUserProfile)
+  .get(getUserProfile)
+  .delete(deleteUserProfile)
+  .patch(updateProfile);
 router.route("/user/likeevent").post(likeEvent);
-router.route("/user/interestedevent").post(addInterested);
+router.route("/user/event/interested").post(addInterested);
 router.route("/user/reserveevent").post(reserveEvent).get(getReservedEvents);
 router.route("/user/visitedevent").get(fetchVisitedEvents);
 router.route("/user/review").post(addReviews).get(getReviews);
 router.route("/user/recommendation").get(getRecommendation);
+router.route("/user/settings").patch(changeSettings);
 
 import { notification } from "../controller/notification";
 router.route("/user/notification").get(notification);
-router
-  .route("/user/:userid")
-  .get(getUserProfile)
-  .delete(deleteUserProfile)
-  .patch(updateProfile);
-router.route("/user/settings").patch(changeSettings);
 
 // Event Routes
 import {

@@ -15,21 +15,21 @@ router.use(authMiddleware_1.authMiddleWare);
 const logsMiddleware_1 = require("../middleware/logsMiddleware");
 router.use(logsMiddleware_1.logsMiddleware);
 const user_1 = require("../controller/user");
-router.route("/user").post(user_1.createUserProfile);
+router
+    .route("/user/profile")
+    .post(user_1.createUserProfile)
+    .get(user_1.getUserProfile)
+    .delete(user_1.deleteUserProfile)
+    .patch(user_1.updateProfile);
 router.route("/user/likeevent").post(user_1.likeEvent);
-router.route("/user/interestedevent").post(user_1.addInterested);
+router.route("/user/event/interested").post(user_1.addInterested);
 router.route("/user/reserveevent").post(user_1.reserveEvent).get(user_1.getReservedEvents);
 router.route("/user/visitedevent").get(user_1.fetchVisitedEvents);
 router.route("/user/review").post(user_1.addReviews).get(user_1.getReviews);
 router.route("/user/recommendation").get(user_1.getRecommendation);
+router.route("/user/settings").patch(user_1.changeSettings);
 const notification_1 = require("../controller/notification");
 router.route("/user/notification").get(notification_1.notification);
-router
-    .route("/user/:userid")
-    .get(user_1.getUserProfile)
-    .delete(user_1.deleteUserProfile)
-    .patch(user_1.updateProfile);
-router.route("/user/settings").patch(user_1.changeSettings);
 const events_1 = require("../controller/events");
 router
     .route("/events")

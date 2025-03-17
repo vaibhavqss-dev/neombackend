@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { Auth, User } from "../db/db_connection";
+import { Auth, User, sequelize } from "../db/db_connection";
 import jwt from "jsonwebtoken";
 
 export const loginUser = async (req: Request, res: Response): Promise<void> => {
@@ -55,14 +55,30 @@ export const userSignup = async (
       res.status(400).json({ message: "User already exists" });
       return;
     }
-    const user = await Auth.create({ username, password });
-    const Users = await User.create({
-      id: user.id,
-      name,
-      email,
-      mobile_number,
-      interests: [],
+    const result = await sequelize.transaction(async (t) => {
+      const Users = await User.create(
+        {
+          name,
+          email,
+          mobile_number,
+          interests: [],
+        },
+        { transaction: t }
+      );
+
+      const user = await Auth.create(
+        {
+          username,
+          password,
+          user_id: Users.id,
+        },
+        { transaction: t }
+      );
+
+      return { Users, user };
     });
+
+    const { Users, user } = result;
 
     res.status(201).json({
       success: true,

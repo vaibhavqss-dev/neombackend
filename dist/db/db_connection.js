@@ -17,6 +17,7 @@ const event_1 = __importDefault(require("../models/event"));
 const visited_events_1 = __importDefault(require("../models/visited_events"));
 const Trending_activity_1 = __importDefault(require("../models/Trending_activity"));
 const myfeedback_1 = __importDefault(require("../models/myfeedback"));
+``;
 dotenv_1.default.config();
 const DB_NAME = process.env.DB_NAME || "neom";
 const DB_USER = process.env.DB_USER || "postgres";
@@ -143,7 +144,7 @@ async function testConnection() {
     try {
         await sequelize.authenticate();
         console.log("Database connection established successfully.");
-        await sequelize.sync({ force: true });
+        await sequelize.sync({ force: false });
         console.log("Database models synchronized.");
     }
     catch (error) {

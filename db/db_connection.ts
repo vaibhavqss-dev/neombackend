@@ -10,9 +10,7 @@ import EventModel from "../models/event";
 import VisitedEventModel from "../models/visited_events";
 import TrendingActivityModel from "../models/Trending_activity";
 import MyFeedbackModel from "../models/myfeedback";
-import visited_events from "../models/visited_events";
-import event from "../models/event";
-
+``
 dotenv.config();
 const DB_NAME = process.env.DB_NAME || "neom";
 const DB_USER = process.env.DB_USER || "postgres";
@@ -36,7 +34,7 @@ const sequelize = new Sequelize(DB_NAME, DB_USER, DB_PASSWORD, {
 
 const Auth = AuthModel(sequelize);
 const User = UserModel(sequelize);
-const Setting = SettingModel(sequelize);
+const Setting = SettingModel(sequelize); 
 const ReservedEvent = ReservedEventModel(sequelize);
 const Logs = LogsModel(sequelize);
 const Reviews = ReviewsModel(sequelize);
@@ -133,14 +131,14 @@ TrendingActivity.belongsTo(Event, {
 Event.hasMany(TrendingActivity, {
   foreignKey: "event_id",
   constraints: true,
-  onDelete: "CASCADE",   
+  onDelete: "CASCADE",
 });
 
 async function testConnection() {
   try {
     await sequelize.authenticate();
     console.log("Database connection established successfully.");
-    await sequelize.sync({ force: true });
+    await sequelize.sync({ force: false });
     console.log("Database models synchronized.");
   } catch (error) {
     console.error("Unable to connect to the database:", error);

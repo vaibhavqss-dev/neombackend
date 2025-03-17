@@ -20,7 +20,6 @@ export const postEvent = async (
       image_urls,
       overall_rating,
     } = _req.body;
-    // Format the time to ensure it's in valid HH:MM:SS format
 
     const formattedTime = getCurrentTime();
     const newEvent = await Event.create({

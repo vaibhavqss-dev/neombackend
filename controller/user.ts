@@ -9,7 +9,6 @@ import {
 } from "../db/db_connection";
 import { Op } from "sequelize";
 
-// already used with signup controller
 export const createUserProfile = async (
   req: Request,
   res: Response
@@ -35,26 +34,26 @@ export const updateProfile = async (
   res: Response
 ): Promise<void> => {
   try {
-    const { name, email, mobilenumber, interest, userId } = req.body;
-
-    // Check if user exists
-    const user = await Auth.findByPk(userId);
+    const { userId: user_id } = req.user;
+    const { name, email, mobilenumber, interests } = req.body;
+    const user = await User.findByPk(user_id);
     if (!user) {
       res.status(404).json({ success: false, message: "User not found" });
       return;
     }
 
     const updateData: any = {};
+    updateData.id = user_id;
     if (name !== undefined) updateData.name = name;
     if (email !== undefined) updateData.email = email;
     if (mobilenumber !== undefined) updateData.mobilenumber = mobilenumber;
-    if (interest !== undefined) updateData.interest = interest;
+    if (interests !== undefined) updateData.interests = interests;
 
     await user.update(updateData);
     res.status(200).json({
       success: true,
-      message: "User updated successfully",
-      data: user,
+      message: "User profile updated successfully",
+      updated_fields: updateData,
     });
   } catch (error) {
     console.error("Error updating user:", error);
@@ -67,8 +66,8 @@ export const getUserProfile = async (
   res: Response
 ): Promise<void> => {
   try {
-    const userId = req.params.userid;
-    const user = await Auth.findByPk(userId);
+    const { userId: user_id } = req.user;
+    const user = await User.findByPk(user_id);
     if (!user) {
       res.status(404).json({ success: false, message: "User not found" });
       return;
@@ -92,8 +91,8 @@ export const deleteUserProfile = async (
   res: Response
 ): Promise<void> => {
   try {
-    const userId = req.params.userid;
-    const user = await Auth.findByPk(userId);
+    const { userId: user_id } = req.user;
+    const user = await User.findByPk(user_id);
     if (!user) {
       res.status(404).json({ success: false, message: "User not found" });
       return;
@@ -116,8 +115,8 @@ export const changeSettings = async (
   res: Response
 ): Promise<void> => {
   try {
+    const { userId: user_id } = req.user;
     const {
-      user_id,
       personalandAccount,
       operator,
       managedata,
@@ -129,7 +128,7 @@ export const changeSettings = async (
     } = req.body;
     const user = await Auth.findByPk(user_id);
     if (!user) {
-      res.status(404).json({ success: false, message: "User not found" });
+      res.status(404).json({ success: false, message: "Users123 not found" });
       return;
     }
 
@@ -152,7 +151,7 @@ export const changeSettings = async (
     res.status(200).json({
       success: true,
       message: "Settings updated successfully",
-      data: user,
+      updated_fields: updateSetting,
     });
   } catch (error) {
     console.error("Error updating settings:", error);
@@ -195,7 +194,8 @@ export const addInterested = async (
   res: Response
 ): Promise<void> => {
   try {
-    const { user_id, interest } = req.body;
+    const { userId: user_id } = req.user;
+    const { interest } = req.body;
     const user = await User.findByPk(user_id);
     if (!user) {
       res.status(404).json({ success: false, message: "User not found" });

@@ -22,26 +22,28 @@ const createUserProfile = async (req, res) => {
 exports.createUserProfile = createUserProfile;
 const updateProfile = async (req, res) => {
     try {
-        const { name, email, mobilenumber, interest, userId } = req.body;
-        const user = await db_connection_1.Auth.findByPk(userId);
+        const { userId: user_id } = req.user;
+        const { name, email, mobilenumber, interests } = req.body;
+        const user = await db_connection_1.User.findByPk(user_id);
         if (!user) {
             res.status(404).json({ success: false, message: "User not found" });
             return;
         }
         const updateData = {};
+        updateData.id = user_id;
         if (name !== undefined)
             updateData.name = name;
         if (email !== undefined)
             updateData.email = email;
         if (mobilenumber !== undefined)
             updateData.mobilenumber = mobilenumber;
-        if (interest !== undefined)
-            updateData.interest = interest;
+        if (interests !== undefined)
+            updateData.interests = interests;
         await user.update(updateData);
         res.status(200).json({
             success: true,
-            message: "User updated successfully",
-            data: user,
+            message: "User profile updated successfully",
+            updated_fields: updateData,
         });
     }
     catch (error) {
@@ -52,8 +54,8 @@ const updateProfile = async (req, res) => {
 exports.updateProfile = updateProfile;
 const getUserProfile = async (req, res) => {
     try {
-        const userId = req.params.userid;
-        const user = await db_connection_1.Auth.findByPk(userId);
+        const { userId: user_id } = req.user;
+        const user = await db_connection_1.User.findByPk(user_id);
         if (!user) {
             res.status(404).json({ success: false, message: "User not found" });
             return;
@@ -74,8 +76,8 @@ const getUserProfile = async (req, res) => {
 exports.getUserProfile = getUserProfile;
 const deleteUserProfile = async (req, res) => {
     try {
-        const userId = req.params.userid;
-        const user = await db_connection_1.Auth.findByPk(userId);
+        const { userId: user_id } = req.user;
+        const user = await db_connection_1.User.findByPk(user_id);
         if (!user) {
             res.status(404).json({ success: false, message: "User not found" });
             return;
@@ -94,10 +96,11 @@ const deleteUserProfile = async (req, res) => {
 exports.deleteUserProfile = deleteUserProfile;
 const changeSettings = async (req, res) => {
     try {
-        const { user_id, personalandAccount, operator, managedata, password_security, notification_email, notification_sms, notification_personalized, language, } = req.body;
+        const { userId: user_id } = req.user;
+        const { personalandAccount, operator, managedata, password_security, notification_email, notification_sms, notification_personalized, language, } = req.body;
         const user = await db_connection_1.Auth.findByPk(user_id);
         if (!user) {
-            res.status(404).json({ success: false, message: "User not found" });
+            res.status(404).json({ success: false, message: "Users123 not found" });
             return;
         }
         const updateSetting = {};
@@ -121,7 +124,7 @@ const changeSettings = async (req, res) => {
         res.status(200).json({
             success: true,
             message: "Settings updated successfully",
-            data: user,
+            updated_fields: updateSetting,
         });
     }
     catch (error) {
@@ -160,7 +163,8 @@ const likeEvent = async (req, res) => {
 exports.likeEvent = likeEvent;
 const addInterested = async (req, res) => {
     try {
-        const { user_id, interest } = req.body;
+        const { userId: user_id } = req.user;
+        const { interest } = req.body;
         const user = await db_connection_1.User.findByPk(user_id);
         if (!user) {
             res.status(404).json({ success: false, message: "User not found" });

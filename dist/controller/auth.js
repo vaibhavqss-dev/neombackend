@@ -48,14 +48,21 @@ const userSignup = async (req, res) => {
             res.status(400).json({ message: "User already exists" });
             return;
         }
-        const user = await db_connection_1.Auth.create({ username, password });
-        const Users = await db_connection_1.User.create({
-            id: user.id,
-            name,
-            email,
-            mobile_number,
-            interests: [],
+        const result = await db_connection_1.sequelize.transaction(async (t) => {
+            const Users = await db_connection_1.User.create({
+                name,
+                email,
+                mobile_number,
+                interests: [],
+            }, { transaction: t });
+            const user = await db_connection_1.Auth.create({
+                username,
+                password,
+                user_id: Users.id,
+            }, { transaction: t });
+            return { Users, user };
         });
+        const { Users, user } = result;
         res.status(201).json({
             success: true,
             message: "User created successfully",
