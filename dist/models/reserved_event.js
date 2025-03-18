@@ -20,22 +20,10 @@ exports.default = (sequelize) => {
             type: sequelize_1.DataTypes.DATE,
             allowNull: false,
         },
-        event_name: {
-            type: sequelize_1.DataTypes.STRING,
-            allowNull: false,
-        },
         no_of_guest: {
             type: sequelize_1.DataTypes.INTEGER,
             allowNull: false,
             defaultValue: 1,
-        },
-        event_category: {
-            type: sequelize_1.DataTypes.STRING,
-            allowNull: false,
-        },
-        event_id: {
-            type: sequelize_1.DataTypes.STRING,
-            allowNull: false,
         },
     }, {
         timestamps: true,

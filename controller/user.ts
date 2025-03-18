@@ -483,12 +483,18 @@ export const getReservedEvents = async (
   res: Response
 ): Promise<void> => {
   try {
-    const { userId } = req.user;
+    const { userId: user_id } = req.user;
     const reservedEvents = await ReservedEvent.findAll({
-      where: { user_id: userId },
+      where: { user_id },
+      include: [
+        {
+          model: Event,
+          required: true,
+        },
+      ],
       limit: 20,
     });
-    if (!reservedEvents) {
+    if (reservedEvents.length === 0) {
       res.status(404).json({ success: false, message: "No reserved events" });
       return;
     }

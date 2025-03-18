@@ -1,4 +1,4 @@
-import { Sequelize } from "sequelize";
+import { Sequelize, where } from "sequelize";
 import dotenv from "dotenv";
 import AuthModel from "../models/auth";
 import UserModel from "../models/user";
@@ -10,7 +10,7 @@ import EventModel from "../models/event";
 import VisitedEventModel from "../models/visited_events";
 import TrendingActivityModel from "../models/Trending_activity";
 import MyFeedbackModel from "../models/myfeedback";
-``
+``;
 dotenv.config();
 const DB_NAME = process.env.DB_NAME || "neom";
 const DB_USER = process.env.DB_USER || "postgres";
@@ -34,7 +34,7 @@ const sequelize = new Sequelize(DB_NAME, DB_USER, DB_PASSWORD, {
 
 const Auth = AuthModel(sequelize);
 const User = UserModel(sequelize);
-const Setting = SettingModel(sequelize); 
+const Setting = SettingModel(sequelize);
 const ReservedEvent = ReservedEventModel(sequelize);
 const Logs = LogsModel(sequelize);
 const Reviews = ReviewsModel(sequelize);
@@ -65,13 +65,38 @@ Setting.belongsTo(User, {
   constraints: true,
 });
 
+// Hook to create default settings when a user is created
+User.addHook("afterCreate", async (user: any, options) => {
+  await Setting.create(
+    {
+      user_id: user.id,
+    },
+    {
+      transaction: options.transaction,
+    }
+  );
+});
+
 User.hasMany(ReservedEvent, {
   foreignKey: "user_id",
   onDelete: "CASCADE",
   constraints: true,
 });
+
 ReservedEvent.belongsTo(User, {
   foreignKey: "user_id",
+  onDelete: "CASCADE",
+  constraints: true,
+});
+
+Event.hasMany(ReservedEvent, {
+  foreignKey: "event_id",
+  onDelete: "CASCADE",
+  constraints: true,
+});
+
+ReservedEvent.belongsTo(Event, {
+  foreignKey: "event_id",
   onDelete: "CASCADE",
   constraints: true,
 });
@@ -138,7 +163,7 @@ async function testConnection() {
   try {
     await sequelize.authenticate();
     console.log("Database connection established successfully.");
-    await sequelize.sync({ force: false });
+    await sequelize.sync({ force: true });
     console.log("Database models synchronized.");
   } catch (error) {
     console.error("Unable to connect to the database:", error);

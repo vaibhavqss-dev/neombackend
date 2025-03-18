@@ -11,9 +11,9 @@ import { authMiddleWare } from "../middleware/authMiddleware";
 router.use(authMiddleWare);
 import { logsMiddleware } from "../middleware/logsMiddleware";
 router.use(logsMiddleware);
-
+ 
 import {
-  createUserProfile,
+  createUserProfile,  
   getUserProfile,
   deleteUserProfile,
   updateProfile,

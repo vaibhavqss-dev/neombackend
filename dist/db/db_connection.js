@@ -78,6 +78,13 @@ Setting.belongsTo(User, {
     onDelete: "CASCADE",
     constraints: true,
 });
+User.addHook("afterCreate", async (user, options) => {
+    await Setting.create({
+        user_id: user.id,
+    }, {
+        transaction: options.transaction,
+    });
+});
 User.hasMany(ReservedEvent, {
     foreignKey: "user_id",
     onDelete: "CASCADE",
@@ -85,6 +92,16 @@ User.hasMany(ReservedEvent, {
 });
 ReservedEvent.belongsTo(User, {
     foreignKey: "user_id",
+    onDelete: "CASCADE",
+    constraints: true,
+});
+Event.hasMany(ReservedEvent, {
+    foreignKey: "event_id",
+    onDelete: "CASCADE",
+    constraints: true,
+});
+ReservedEvent.belongsTo(Event, {
+    foreignKey: "event_id",
     onDelete: "CASCADE",
     constraints: true,
 });
@@ -144,7 +161,7 @@ async function testConnection() {
     try {
         await sequelize.authenticate();
         console.log("Database connection established successfully.");
-        await sequelize.sync({ force: false });
+        await sequelize.sync({ force: true });
         console.log("Database models synchronized.");
     }
     catch (error) {

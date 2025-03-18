@@ -54,6 +54,22 @@ export default (sequelize: Sequelize) => {
         type: DataTypes.INTEGER,
         allowNull: false,
       },
+      min_temprature: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+      max_temprature: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+      avg_rating: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+      no_reviews: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
     },
     {
       timestamps: true,

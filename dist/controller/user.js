@@ -403,12 +403,18 @@ const getTrendingActivity = async (_req, res) => {
 exports.getTrendingActivity = getTrendingActivity;
 const getReservedEvents = async (req, res) => {
     try {
-        const { userId } = req.user;
+        const { userId: user_id } = req.user;
         const reservedEvents = await db_connection_1.ReservedEvent.findAll({
-            where: { user_id: userId },
+            where: { user_id },
+            include: [
+                {
+                    model: db_connection_1.Event,
+                    required: true,
+                },
+            ],
             limit: 20,
         });
-        if (!reservedEvents) {
+        if (reservedEvents.length === 0) {
             res.status(404).json({ success: false, message: "No reserved events" });
             return;
         }

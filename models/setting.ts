@@ -17,7 +17,7 @@ export default (sequelize: Sequelize) => {
   const setting = sequelize.define<any>(
     "Setting",
     {
-      id: {
+      user_id: {
         type: DataTypes.INTEGER,
         autoIncrement: true,
         primaryKey: true,

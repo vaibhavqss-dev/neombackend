@@ -19,6 +19,10 @@ export const postEvent = async (
       subtext,
       image_urls,
       overall_rating,
+      min_temprature,
+      max_temprature,
+      avg_rating,
+      no_reviews,
     } = _req.body;
 
     const formattedTime = getCurrentTime();
@@ -34,6 +38,10 @@ export const postEvent = async (
       subtext,
       image_urls,
       overall_rating,
+      min_temprature,
+      max_temprature,
+      avg_rating,
+      no_reviews,
     });
     res.status(201).json({ success: true, data: newEvent });
   } catch (error) {

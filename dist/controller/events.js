@@ -5,7 +5,7 @@ const db_connection_1 = require("../db/db_connection");
 const utility_1 = require("./utility");
 const postEvent = async (_req, res) => {
     try {
-        const { title, category, date, location, description, latitude, longitude, subtext, image_urls, overall_rating, } = _req.body;
+        const { title, category, date, location, description, latitude, longitude, subtext, image_urls, overall_rating, min_temprature, max_temprature, avg_rating, no_reviews, } = _req.body;
         const formattedTime = (0, utility_1.getCurrentTime)();
         const newEvent = await db_connection_1.Event.create({
             title,
@@ -19,6 +19,10 @@ const postEvent = async (_req, res) => {
             subtext,
             image_urls,
             overall_rating,
+            min_temprature,
+            max_temprature,
+            avg_rating,
+            no_reviews,
         });
         res.status(201).json({ success: true, data: newEvent });
     }

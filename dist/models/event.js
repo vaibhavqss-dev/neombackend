@@ -53,6 +53,22 @@ exports.default = (sequelize) => {
             type: sequelize_1.DataTypes.INTEGER,
             allowNull: false,
         },
+        min_temprature: {
+            type: sequelize_1.DataTypes.STRING,
+            allowNull: false,
+        },
+        max_temprature: {
+            type: sequelize_1.DataTypes.STRING,
+            allowNull: false,
+        },
+        avg_rating: {
+            type: sequelize_1.DataTypes.STRING,
+            allowNull: false,
+        },
+        no_reviews: {
+            type: sequelize_1.DataTypes.STRING,
+            allowNull: false,
+        },
     }, {
         timestamps: true,
     });
