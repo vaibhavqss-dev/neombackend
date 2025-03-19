@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { Auth, User, sequelize } from "../db/db_connection";
+import { Auth, User, sequelize } from "../db/db_connect";
 import jwt from "jsonwebtoken";
 
 export const loginUser = async (req: Request, res: Response): Promise<void> => {
@@ -55,13 +55,15 @@ export const userSignup = async (
       res.status(400).json({ message: "User already exists" });
       return;
     }
-    const result = await sequelize.transaction(async (t) => {
+    const result = await sequelize.transaction(async (t: any) => {
       const Users = await User.create(
         {
           name,
           email,
           mobile_number,
           interests: [],
+          profile_img:
+            "https://oplsgvveavucoyuifbte.supabase.co/storage/v1/object/public/neom-images/assests/profilePic.png",
         },
         { transaction: t }
       );

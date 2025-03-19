@@ -1,13 +1,13 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteEvent = exports.updateEvent = exports.getEvents = exports.postEvent = void 0;
-const db_connection_1 = require("../db/db_connection");
+const db_connect_1 = require("../db/db_connect");
 const utility_1 = require("./utility");
 const postEvent = async (_req, res) => {
     try {
         const { title, category, date, location, description, latitude, longitude, subtext, image_urls, overall_rating, min_temprature, max_temprature, avg_rating, no_reviews, } = _req.body;
         const formattedTime = (0, utility_1.getCurrentTime)();
-        const newEvent = await db_connection_1.Event.create({
+        const newEvent = await db_connect_1.Event.create({
             title,
             category,
             time: formattedTime,
@@ -49,11 +49,11 @@ const getEvents = async (_req, res) => {
             filter_event.date = date;
         }
         if (Object.keys(filter_event).length === 0) {
-            const events = await db_connection_1.Event.findAll({ limit: 10 });
+            const events = await db_connect_1.Event.findAll({ limit: 10 });
             res.status(200).json({ success: true, data: events, isFiltered: false });
             return;
         }
-        const events = await db_connection_1.Event.findAll({
+        const events = await db_connect_1.Event.findAll({
             where: filter_event,
             limit: 10,
         });
@@ -98,7 +98,7 @@ const updateEvent = async (_req, res) => {
             });
             return;
         }
-        const updatedEvent = await db_connection_1.Event.update(update, {
+        const updatedEvent = await db_connect_1.Event.update(update, {
             where: { id: event_id },
         });
         res.status(200).json({ success: true, messsage: "Event updated" });
@@ -119,7 +119,7 @@ const deleteEvent = async (_req, res) => {
             });
             return;
         }
-        await db_connection_1.Event.destroy({ where: { id: event_id } });
+        await db_connect_1.Event.destroy({ where: { id: event_id } });
         res.status(200).json({ success: true, message: "Event deleted" });
     }
     catch (error) {

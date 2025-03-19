@@ -3,8 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Recommendations = exports.MyFeedback = exports.TrendingActivity = exports.VisitedEvent = exports.Event = exports.Reviews = exports.Logs = exports.Setting = exports.ReservedEvent = exports.User = exports.Auth = exports.sequelize = void 0;
-exports.testConnection = testConnection;
+exports.Recommendations = exports.MyFeedback = exports.TrendingActivity = exports.VisitedEvent = exports.Event = exports.Reviews = exports.Logs = exports.ReservedEvent = exports.Setting = exports.User = exports.Auth = void 0;
 const auth_1 = __importDefault(require("../models/auth"));
 const user_1 = __importDefault(require("../models/user"));
 const setting_1 = __importDefault(require("../models/setting"));
@@ -17,7 +16,6 @@ const Trending_activity_1 = __importDefault(require("../models/Trending_activity
 const myfeedback_1 = __importDefault(require("../models/myfeedback"));
 const recommendations_1 = __importDefault(require("../models/recommendations"));
 const database_1 = require("../config/database");
-Object.defineProperty(exports, "sequelize", { enumerable: true, get: function () { return database_1.sequelize; } });
 const Auth = (0, auth_1.default)(database_1.sequelize);
 exports.Auth = Auth;
 const User = (0, user_1.default)(database_1.sequelize);
@@ -124,15 +122,3 @@ TrendingActivity.belongsTo(Event, {
     constraints: true,
     onDelete: "CASCADE",
 });
-async function testConnection() {
-    try {
-        await database_1.sequelize.authenticate();
-        console.log("Database connection established successfully.");
-        await database_1.sequelize.sync({ force: false });
-        console.log("Database models synchronized.");
-    }
-    catch (error) {
-        console.error("Unable to connect to the database:", error);
-        throw error;
-    }
-}

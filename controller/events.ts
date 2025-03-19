@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { Event } from "../db/db_connection";
+import { Event } from "../db/db_connect";
 import { getCurrentTime } from "./utility";
 
 // Postevent

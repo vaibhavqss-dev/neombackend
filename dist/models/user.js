@@ -58,6 +58,9 @@ class User extends sequelize_1.Model {
     get likes() {
         return this.getDataValue("likes") || [];
     }
+    get profile_img() {
+        return this.getDataValue("profile_img");
+    }
 }
 exports.default = (sequelize) => {
     User.init({
@@ -94,6 +97,10 @@ exports.default = (sequelize) => {
             type: sequelize_1.DataTypes.JSON,
             allowNull: true,
             defaultValue: [],
+        },
+        profile_img: {
+            type: sequelize_1.DataTypes.STRING,
+            allowNull: true,
         },
     }, {
         tableName: "users",

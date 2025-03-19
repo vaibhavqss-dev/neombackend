@@ -4,7 +4,7 @@ export default (sequelize: Sequelize) => {
   const event = sequelize.define<any>(
     "event",
     {
-      id: {
+      event_id: {
         type: DataTypes.INTEGER,
         autoIncrement: true,
         primaryKey: true,
@@ -22,12 +22,14 @@ export default (sequelize: Sequelize) => {
         allowNull: false,
       },
       date: {
-        type: DataTypes.DATE,
+        type: DataTypes.JSON,
         allowNull: false,
+        defaultValue: [],
       },
       time: {
-        type: DataTypes.TIME,
+        type: DataTypes.JSON,
         allowNull: false,
+        defaultValue: [],
       },
       latitude: {
         type: DataTypes.STRING,

@@ -12,39 +12,27 @@ exports.default = (sequelize) => {
             type: sequelize_1.DataTypes.INTEGER,
             allowNull: false,
         },
-        username: {
-            type: sequelize_1.DataTypes.STRING,
-            allowNull: false,
-        },
         comment: {
             type: sequelize_1.DataTypes.STRING,
             allowNull: true,
         },
-        rating: {
+        avg_rating: {
             type: sequelize_1.DataTypes.INTEGER,
-            allowNull: true,
+            allowNull: false,
         },
         date: {
             type: sequelize_1.DataTypes.DATE,
             allowNull: false,
+            defaultValue: sequelize_1.DataTypes.NOW,
         },
         time: {
             type: sequelize_1.DataTypes.TIME,
             allowNull: false,
             defaultValue: sequelize_1.DataTypes.NOW,
         },
-        location: {
-            type: sequelize_1.DataTypes.STRING,
-            allowNull: false,
-        },
-        event_category: {
-            type: sequelize_1.DataTypes.STRING,
-            allowNull: false,
-        },
         event_id: {
-            type: sequelize_1.DataTypes.STRING,
+            type: sequelize_1.DataTypes.INTEGER,
             allowNull: false,
-            unique: true,
         },
     }, {
         timestamps: true,

@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const sequelize_1 = require("sequelize");
 exports.default = (sequelize) => {
-    const reservedEvent = sequelize.define("reserved_event", {
+    const recommendation = sequelize.define("recommendation", {
         id: {
             type: sequelize_1.DataTypes.INTEGER,
             autoIncrement: true,
@@ -12,18 +12,9 @@ exports.default = (sequelize) => {
             type: sequelize_1.DataTypes.INTEGER,
             allowNull: false,
         },
-        date_from: {
-            type: sequelize_1.DataTypes.DATE,
+        event_type: {
+            type: sequelize_1.DataTypes.STRING,
             allowNull: false,
-        },
-        date_to: {
-            type: sequelize_1.DataTypes.DATE,
-            allowNull: false,
-        },
-        no_of_guest: {
-            type: sequelize_1.DataTypes.INTEGER,
-            allowNull: false,
-            defaultValue: 1,
         },
         event_id: {
             type: sequelize_1.DataTypes.INTEGER,
@@ -32,5 +23,5 @@ exports.default = (sequelize) => {
     }, {
         timestamps: true,
     });
-    return reservedEvent;
+    return recommendation;
 };

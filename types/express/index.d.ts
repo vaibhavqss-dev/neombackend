@@ -1,4 +1,4 @@
-import { User } from "../../db/db_connection";
+import { User } from "../../db/db_connect";
 
 declare global {
   namespace Express {

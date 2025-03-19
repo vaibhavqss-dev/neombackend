@@ -6,28 +6,10 @@ import {
   Reviews,
   Event,
   Logs,
-} from "../db/db_connection";
+  Recommendations,
+  TrendingActivity,
+} from "../db/db_connect";
 import { Op } from "sequelize";
-
-export const createUserProfile = async (
-  req: Request,
-  res: Response
-): Promise<void> => {
-  try {
-    const { username, password } = req.body;
-    const existingUser = await Auth.findOne({ where: { username } });
-    if (existingUser) {
-      res.status(400).json({ error: "User already exists" });
-      return;
-    }
-
-    const user = await Auth.create({ username, password });
-    res.status(201).json({ message: "User created successfully", user });
-  } catch (error) {
-    console.error("Error creating user:", error);
-    res.status(500).json({ success: false, message: "Failed to create user" });
-  }
-};
 
 export const updateProfile = async (
   req: Request,
@@ -57,6 +39,59 @@ export const updateProfile = async (
     });
   } catch (error) {
     console.error("Error updating user:", error);
+    res.status(500).json({ success: false, message: "Failed to update user" });
+  }
+};
+
+import { getSignedUrl } from "../services/get_signed_url";
+export const updateProfile_img = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const { userId: user_id } = req.user;
+    const { profile_img_name } = req.body;
+
+    if (!profile_img_name) {
+      res.status(400).json({
+        success: false,
+        message: "Profile image name is required",
+      });
+      return;
+    }
+
+    const user = await User.findByPk(user_id);
+    if (!user) {
+      res.status(404).json({ success: false, message: "User not found" });
+      return;
+    }
+
+    const signedUrlData = await getSignedUrl(
+      user_id.toString(),
+      profile_img_name
+    );
+
+    if (!signedUrlData) {
+      res.status(500).json({
+        success: false,
+        message: "Failed to generate upload URL. Please check server logs.",
+      });
+      return;
+    }
+
+    // Store the file path, not the signed URL
+    await user.update({
+      profile_img: `https://oplsgvveavucoyuifbte.supabase.co/storage/v1/object/public/neom-images/${signedUrlData.path}`,
+    });
+
+    res.status(200).json({
+      success: true,
+      message: "Profile image upload URL generated successfully",
+      uploadUrl: signedUrlData.signedUrl,
+      publicUrl: `https://oplsgvveavucoyuifbte.supabase.co/storage/v1/object/public/neom-images/${signedUrlData.path}`,
+    });
+  } catch (error) {
+    console.error("Error updating user profile image:", error);
     res.status(500).json({ success: false, message: "Failed to update user" });
   }
 };
@@ -161,7 +196,6 @@ export const changeSettings = async (
   }
 };
 
-// when user likes any event it's get's here
 export const likeEvent = async (req: Request, res: Response): Promise<void> => {
   try {
     console.log(req.user);
@@ -420,11 +454,8 @@ export const getRecommendation = async (
       res.status(404).json({ success: false, message: "User not found" });
       return;
     }
-    const recommendation = await Event.findAll({
-      where: {
-        category: user.interests.length == 0 ? "joy" : user.interests[0],
-      },
-      limit: 15,
+    const recommendation = await Recommendations.findAll({
+      limit: 10,
     });
     if (!recommendation) {
       res.status(404).json({
@@ -453,21 +484,17 @@ export const getTrendingActivity = async (
   res: Response
 ): Promise<void> => {
   try {
-    const trending = await Logs.findAll({
-      limit: 200,
+    const events = await TrendingActivity.findAll({
+      limit: 10,
     });
-
-    const events = Event.findAll({
-      where: {
-        id: trending.map((event) => event.event_id),
-      },
-      limit: 20,
-    });
-
-    const trendingEventsMap = res.status(200).json({
+    if (!events) {
+      res.status(404).json({ success: false, message: "No trending events" });
+      return;
+    }
+    res.status(200).json({
       success: true,
       message: "Trending events retrieved successfully",
-      data: events,
+      events: events,
     });
   } catch (error) {
     console.error("Error fetching trending events:", error);

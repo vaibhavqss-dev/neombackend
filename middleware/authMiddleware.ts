@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
-import { User } from "../db/db_connection";
+import { User } from "../db/db_connect";
 import dotenv from "dotenv";
 dotenv.config();
 

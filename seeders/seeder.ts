@@ -1,5 +1,22 @@
-import { Event, Auth, User, Reviews } from "../db/db_connection";
-import { events, signup, reviews } from "./data/data";
+import {
+  Event,
+  Auth,
+  User,
+  Reviews,
+  ReservedEvent,
+  TrendingActivity,
+  Logs,
+  Recommendations,
+} from "../db/db_connect";
+import {
+  events,
+  signup,
+  reviews,
+  reserved_events,
+  trending_activity,
+  logs,
+  recommendations,
+} from "./data/data";
 
 export const seedsignup = async () => {
   try {
@@ -14,6 +31,7 @@ export const seedsignup = async () => {
             mobile_number: signupData.mobile_number,
             interests: ["music", "sports"],
             likes: ["event1", "event2"],
+            profile_img: signupData.profile_img,
           },
         });
         const [signup, created] = await Auth.findOrCreate({
@@ -63,21 +81,85 @@ export async function seedEvents() {
   }
 }
 
-export const seedReviews = async () => {
+export const seedReservedEvents = async () => {
   try {
-    for (const reviewData of reviews) {
-      console.log(`Creating review for event '${reviewData.event_name}'...`);
+    for (const reservedEventData of reserved_events) {
+      console.log(`Creating reserved event '${reservedEventData.event_id}'...`);
       try {
-        const review = await Reviews.create(reviewData);
-        console.log(`Review created with ID: ${review.id}`);
+        const reservedEvent = await ReservedEvent.create(reservedEventData);
+        console.log(`Reserved event created with ID: ${reservedEvent.id}`);
       } catch (err) {
         console.error(
-          `Error creating review for event '${reviewData.event_name}':`,
+          `Error creating reserved event '${reservedEventData.event_id}':`,
           err
         );
       }
     }
   } catch (err) {
+    console.error("Error seeding reserved event data:", err);
+  }
+};
+
+export const seedReviews = async () => {
+  try {
+    for (const reviewData of reviews) {
+      try {
+        const review = await Reviews.create(reviewData);
+        console.log(`Review created with ID: ${review.id}`);
+      } catch (err) {
+        console.error("Error creating review:", err);
+      }
+    }
+  } catch (err) {
     console.error("Error seeding review data:", err);
+  }
+};
+
+export const seedTrendingActivity = async () => {
+  try {
+    for (const trendingActivityData of trending_activity) {
+      try {
+        const trendingActivity = await TrendingActivity.create(
+          trendingActivityData
+        );
+        console.log(
+          `Trending activity created with ID: ${trendingActivity.id}`
+        );
+      } catch (err) {
+        console.error("Error creating trending activity:", err);
+      }
+    }
+  } catch (err) {
+    console.error("Error seeding trending activity data:", err);
+  }
+};
+
+export const seedlogs = async () => {
+  try {
+    for (const logData of logs) {
+      try {
+        const log = await Logs.create(logData);
+        console.log(`Log created with ID: ${log.id}`);
+      } catch (err) {
+        console.error("Error creating log:", err);
+      }
+    }
+  } catch (err) {
+    console.error("Error seeding log data:", err);
+  }
+};
+
+export const seedRecommendations = async () => {
+  try {
+    for (const recommendationData of recommendations) {
+      try {
+        const recommendation = await Recommendations.create(recommendationData);
+        console.log(`Recommendation created with ID: ${recommendation.id}`);
+      } catch (err) {
+        console.error("Error creating recommendation:", err);
+      }
+    }
+  } catch (err) {
+    console.error("Error seeding recommendation data:", err);
   }
 };

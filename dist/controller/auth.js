@@ -4,13 +4,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.userSignup = exports.loginUser = void 0;
-const db_connection_1 = require("../db/db_connection");
+const db_connect_1 = require("../db/db_connect");
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const loginUser = async (req, res) => {
     try {
         const { username, password } = req.body;
         console.log(username, password);
-        const user = await db_connection_1.Auth.findOne({ where: { username } });
+        const user = await db_connect_1.Auth.findOne({ where: { username } });
         if (!user) {
             res.status(401).json({ error: "Invalid credentials" });
             return;
@@ -43,19 +43,20 @@ const userSignup = async (req, res) => {
             res.status(400).json({ error: "Username and password are required" });
             return;
         }
-        const existingUser = await db_connection_1.Auth.findOne({ where: { username } });
+        const existingUser = await db_connect_1.Auth.findOne({ where: { username } });
         if (existingUser) {
             res.status(400).json({ message: "User already exists" });
             return;
         }
-        const result = await db_connection_1.sequelize.transaction(async (t) => {
-            const Users = await db_connection_1.User.create({
+        const result = await db_connect_1.sequelize.transaction(async (t) => {
+            const Users = await db_connect_1.User.create({
                 name,
                 email,
                 mobile_number,
                 interests: [],
+                profile_img: "https://oplsgvveavucoyuifbte.supabase.co/storage/v1/object/public/neom-images/assests/profilePic.png",
             }, { transaction: t });
-            const user = await db_connection_1.Auth.create({
+            const user = await db_connect_1.Auth.create({
                 username,
                 password,
                 user_id: Users.id,

@@ -11,9 +11,8 @@ import { authMiddleWare } from "../middleware/authMiddleware";
 router.use(authMiddleWare);
 import { logsMiddleware } from "../middleware/logsMiddleware";
 router.use(logsMiddleware);
- 
+
 import {
-  createUserProfile,  
   getUserProfile,
   deleteUserProfile,
   updateProfile,
@@ -27,11 +26,11 @@ import {
   getTrendingActivity,
   getReservedEvents,
   getReviews,
+  updateProfile_img,
 } from "../controller/user";
 
 router
   .route("/user/profile")
-  .post(createUserProfile)
   .get(getUserProfile)
   .delete(deleteUserProfile)
   .patch(updateProfile);
@@ -42,6 +41,7 @@ router.route("/user/visitedevent").get(fetchVisitedEvents);
 router.route("/user/review").post(addReviews).get(getReviews);
 router.route("/user/recommendation").get(getRecommendation);
 router.route("/user/settings").patch(changeSettings);
+router.route("/user/profile/uploadimg").post(updateProfile_img);
 
 import { notification } from "../controller/notification";
 router.route("/user/notification").get(notification);

@@ -17,7 +17,6 @@ router.use(logsMiddleware_1.logsMiddleware);
 const user_1 = require("../controller/user");
 router
     .route("/user/profile")
-    .post(user_1.createUserProfile)
     .get(user_1.getUserProfile)
     .delete(user_1.deleteUserProfile)
     .patch(user_1.updateProfile);
@@ -28,6 +27,7 @@ router.route("/user/visitedevent").get(user_1.fetchVisitedEvents);
 router.route("/user/review").post(user_1.addReviews).get(user_1.getReviews);
 router.route("/user/recommendation").get(user_1.getRecommendation);
 router.route("/user/settings").patch(user_1.changeSettings);
+router.route("/user/profile/uploadimg").post(user_1.updateProfile_img);
 const notification_1 = require("../controller/notification");
 router.route("/user/notification").get(notification_1.notification);
 const events_1 = require("../controller/events");

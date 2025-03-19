@@ -1,3 +1,4 @@
+import { fail } from "assert";
 import { Sequelize, DataTypes } from "sequelize";
 
 export default (sequelize: Sequelize) => {
@@ -13,39 +14,27 @@ export default (sequelize: Sequelize) => {
         type: DataTypes.INTEGER,
         allowNull: false,
       },
-      username: {
-        type: DataTypes.STRING,
-        allowNull: false,
-      },
       comment: {
         type: DataTypes.STRING,
         allowNull: true,
       },
-      rating: {
+      avg_rating: {
         type: DataTypes.INTEGER,
-        allowNull: true,
+        allowNull: false,
       },
       date: {
         type: DataTypes.DATE,
         allowNull: false,
+        defaultValue: DataTypes.NOW,
       },
       time: {
         type: DataTypes.TIME,
         allowNull: false,
         defaultValue: DataTypes.NOW,
       },
-      location: {
-        type: DataTypes.STRING,
-        allowNull: false,
-      },
-      event_category: {
-        type: DataTypes.STRING,
-        allowNull: false,
-      },
       event_id: {
-        type: DataTypes.STRING,
+        type: DataTypes.INTEGER,
         allowNull: false, 
-        unique: true,
       },
     },
     {

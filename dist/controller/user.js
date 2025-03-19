@@ -1,30 +1,13 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getReservedEvents = exports.getTrendingActivity = exports.getRecommendation = exports.getReviews = exports.addReviews = exports.fetchVisitedEvents = exports.reserveEvent = exports.addInterested = exports.likeEvent = exports.changeSettings = exports.deleteUserProfile = exports.getUserProfile = exports.updateProfile = exports.createUserProfile = void 0;
-const db_connection_1 = require("../db/db_connection");
+exports.getReservedEvents = exports.getTrendingActivity = exports.getRecommendation = exports.getReviews = exports.addReviews = exports.fetchVisitedEvents = exports.reserveEvent = exports.addInterested = exports.likeEvent = exports.changeSettings = exports.deleteUserProfile = exports.getUserProfile = exports.updateProfile_img = exports.updateProfile = void 0;
+const db_connect_1 = require("../db/db_connect");
 const sequelize_1 = require("sequelize");
-const createUserProfile = async (req, res) => {
-    try {
-        const { username, password } = req.body;
-        const existingUser = await db_connection_1.Auth.findOne({ where: { username } });
-        if (existingUser) {
-            res.status(400).json({ error: "User already exists" });
-            return;
-        }
-        const user = await db_connection_1.Auth.create({ username, password });
-        res.status(201).json({ message: "User created successfully", user });
-    }
-    catch (error) {
-        console.error("Error creating user:", error);
-        res.status(500).json({ success: false, message: "Failed to create user" });
-    }
-};
-exports.createUserProfile = createUserProfile;
 const updateProfile = async (req, res) => {
     try {
         const { userId: user_id } = req.user;
         const { name, email, mobilenumber, interests } = req.body;
-        const user = await db_connection_1.User.findByPk(user_id);
+        const user = await db_connect_1.User.findByPk(user_id);
         if (!user) {
             res.status(404).json({ success: false, message: "User not found" });
             return;
@@ -52,10 +35,51 @@ const updateProfile = async (req, res) => {
     }
 };
 exports.updateProfile = updateProfile;
+const get_signed_url_1 = require("../services/get_signed_url");
+const updateProfile_img = async (req, res) => {
+    try {
+        const { userId: user_id } = req.user;
+        const { profile_img_name } = req.body;
+        if (!profile_img_name) {
+            res.status(400).json({
+                success: false,
+                message: "Profile image name is required",
+            });
+            return;
+        }
+        const user = await db_connect_1.User.findByPk(user_id);
+        if (!user) {
+            res.status(404).json({ success: false, message: "User not found" });
+            return;
+        }
+        const signedUrlData = await (0, get_signed_url_1.getSignedUrl)(user_id.toString(), profile_img_name);
+        if (!signedUrlData) {
+            res.status(500).json({
+                success: false,
+                message: "Failed to generate upload URL. Please check server logs.",
+            });
+            return;
+        }
+        await user.update({
+            profile_img: `https://oplsgvveavucoyuifbte.supabase.co/storage/v1/object/public/neom-images/${signedUrlData.path}`,
+        });
+        res.status(200).json({
+            success: true,
+            message: "Profile image upload URL generated successfully",
+            uploadUrl: signedUrlData.signedUrl,
+            publicUrl: `https://oplsgvveavucoyuifbte.supabase.co/storage/v1/object/public/neom-images/${signedUrlData.path}`,
+        });
+    }
+    catch (error) {
+        console.error("Error updating user profile image:", error);
+        res.status(500).json({ success: false, message: "Failed to update user" });
+    }
+};
+exports.updateProfile_img = updateProfile_img;
 const getUserProfile = async (req, res) => {
     try {
         const { userId: user_id } = req.user;
-        const user = await db_connection_1.User.findByPk(user_id);
+        const user = await db_connect_1.User.findByPk(user_id);
         if (!user) {
             res.status(404).json({ success: false, message: "User not found" });
             return;
@@ -77,7 +101,7 @@ exports.getUserProfile = getUserProfile;
 const deleteUserProfile = async (req, res) => {
     try {
         const { userId: user_id } = req.user;
-        const user = await db_connection_1.User.findByPk(user_id);
+        const user = await db_connect_1.User.findByPk(user_id);
         if (!user) {
             res.status(404).json({ success: false, message: "User not found" });
             return;
@@ -98,7 +122,7 @@ const changeSettings = async (req, res) => {
     try {
         const { userId: user_id } = req.user;
         const { personalandAccount, operator, managedata, password_security, notification_email, notification_sms, notification_personalized, language, } = req.body;
-        const user = await db_connection_1.Auth.findByPk(user_id);
+        const user = await db_connect_1.Auth.findByPk(user_id);
         if (!user) {
             res.status(404).json({ success: false, message: "Users123 not found" });
             return;
@@ -140,7 +164,7 @@ const likeEvent = async (req, res) => {
         console.log(req.user);
         const { userId: user_id } = req.user;
         const { event_id } = req.body;
-        const user = await db_connection_1.User.findOne({ where: { id: user_id } });
+        const user = await db_connect_1.User.findOne({ where: { id: user_id } });
         if (!user) {
             res.status(404).json({ success: false, message: "User not found" });
             return;
@@ -165,7 +189,7 @@ const addInterested = async (req, res) => {
     try {
         const { userId: user_id } = req.user;
         const { interest } = req.body;
-        const user = await db_connection_1.User.findByPk(user_id);
+        const user = await db_connect_1.User.findByPk(user_id);
         if (!user) {
             res.status(404).json({ success: false, message: "User not found" });
             return;
@@ -194,12 +218,12 @@ const reserveEvent = async (req, res) => {
     try {
         const { event_id, date_from, date_to, event_name, no_of_guest, event_category, } = req.body;
         const { userId: user_id } = req.user;
-        const user = await db_connection_1.User.findByPk(user_id);
+        const user = await db_connect_1.User.findByPk(user_id);
         if (!user) {
             res.status(404).json({ success: false, message: "User not found" });
             return;
         }
-        let isReserved = await db_connection_1.ReservedEvent.create({
+        let isReserved = await db_connect_1.ReservedEvent.create({
             user_id,
             event_id,
             date_from,
@@ -231,12 +255,12 @@ const fetchVisitedEvents = async (req, res) => {
     try {
         const { userId: user_id } = req.user;
         const { event_id, date, time, location, event_type } = req.body;
-        const user = await db_connection_1.User.findByPk(user_id);
+        const user = await db_connect_1.User.findByPk(user_id);
         if (!user) {
             res.status(404).json({ success: false, message: "User not found" });
             return;
         }
-        let isVisited = await db_connection_1.ReservedEvent.findAll({
+        let isVisited = await db_connect_1.ReservedEvent.findAll({
             where: {
                 user_id,
                 date_to: {
@@ -262,7 +286,7 @@ const addReviews = async (req, res) => {
     try {
         const { userId: user_id } = req.user;
         const { quality_of_event, service_of_event, facilites_of_event, staffPoliteness, operator_of_event, event_name, event_id, location, event_category, comment, } = req.body;
-        const user = await db_connection_1.User.findByPk(user_id);
+        const user = await db_connect_1.User.findByPk(user_id);
         if (!user) {
             res.status(404).json({ success: false, message: "User not found" });
             return;
@@ -274,7 +298,7 @@ const addReviews = async (req, res) => {
             operator_of_event) /
             5;
         try {
-            let isReviewed = await db_connection_1.Reviews.create({
+            let isReviewed = await db_connect_1.Reviews.create({
                 user_id,
                 event_id,
                 username: user.name,
@@ -319,7 +343,7 @@ const getReviews = async (req, res) => {
         if (user_id) {
             query.user_id = user_id;
         }
-        const reviews = await db_connection_1.Reviews.findAll({
+        const reviews = await db_connect_1.Reviews.findAll({
             where: query,
             limit: 20,
         });
@@ -344,16 +368,13 @@ exports.getReviews = getReviews;
 const getRecommendation = async (req, res) => {
     try {
         const { userId } = req.user;
-        const user = await db_connection_1.User.findByPk(userId);
+        const user = await db_connect_1.User.findByPk(userId);
         if (!user) {
             res.status(404).json({ success: false, message: "User not found" });
             return;
         }
-        const recommendation = await db_connection_1.Event.findAll({
-            where: {
-                category: user.interests.length == 0 ? "joy" : user.interests[0],
-            },
-            limit: 15,
+        const recommendation = await db_connect_1.Recommendations.findAll({
+            limit: 10,
         });
         if (!recommendation) {
             res.status(404).json({
@@ -378,19 +399,17 @@ const getRecommendation = async (req, res) => {
 exports.getRecommendation = getRecommendation;
 const getTrendingActivity = async (_req, res) => {
     try {
-        const trending = await db_connection_1.Logs.findAll({
-            limit: 200,
+        const events = await db_connect_1.TrendingActivity.findAll({
+            limit: 10,
         });
-        const events = db_connection_1.Event.findAll({
-            where: {
-                id: trending.map((event) => event.event_id),
-            },
-            limit: 20,
-        });
-        const trendingEventsMap = res.status(200).json({
+        if (!events) {
+            res.status(404).json({ success: false, message: "No trending events" });
+            return;
+        }
+        res.status(200).json({
             success: true,
             message: "Trending events retrieved successfully",
-            data: events,
+            events: events,
         });
     }
     catch (error) {
@@ -404,11 +423,11 @@ exports.getTrendingActivity = getTrendingActivity;
 const getReservedEvents = async (req, res) => {
     try {
         const { userId: user_id } = req.user;
-        const reservedEvents = await db_connection_1.ReservedEvent.findAll({
+        const reservedEvents = await db_connect_1.ReservedEvent.findAll({
             where: { user_id },
             include: [
                 {
-                    model: db_connection_1.Event,
+                    model: db_connect_1.Event,
                     required: true,
                 },
             ],

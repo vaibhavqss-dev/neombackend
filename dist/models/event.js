@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const sequelize_1 = require("sequelize");
 exports.default = (sequelize) => {
     const event = sequelize.define("event", {
-        id: {
+        event_id: {
             type: sequelize_1.DataTypes.INTEGER,
             autoIncrement: true,
             primaryKey: true,
@@ -21,12 +21,14 @@ exports.default = (sequelize) => {
             allowNull: false,
         },
         date: {
-            type: sequelize_1.DataTypes.DATE,
+            type: sequelize_1.DataTypes.JSON,
             allowNull: false,
+            defaultValue: [],
         },
         time: {
-            type: sequelize_1.DataTypes.TIME,
+            type: sequelize_1.DataTypes.JSON,
             allowNull: false,
+            defaultValue: [],
         },
         latitude: {
             type: sequelize_1.DataTypes.STRING,

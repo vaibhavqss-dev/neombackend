@@ -12,23 +12,7 @@ exports.default = (sequelize) => {
             type: sequelize_1.DataTypes.STRING,
             allowNull: false,
         },
-        date: {
-            type: sequelize_1.DataTypes.DATE,
-            allowNull: false,
-        },
-        time: {
-            type: sequelize_1.DataTypes.TIME,
-            allowNull: false,
-        },
         location: {
-            type: sequelize_1.DataTypes.STRING,
-            allowNull: true,
-        },
-        event_type: {
-            type: sequelize_1.DataTypes.STRING,
-            allowNull: true,
-        },
-        event_id: {
             type: sequelize_1.DataTypes.STRING,
             allowNull: true,
         },

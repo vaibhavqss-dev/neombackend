@@ -4,7 +4,7 @@ import bodyParser from "body-parser";
 import dotenv from "dotenv";
 dotenv.config();
 import router from "./router/router";
-import { testConnection } from "./db/db_connection";
+import { testConnection } from "./db/db_connect";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -13,7 +13,6 @@ app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use("/api", router);
-
 
 async function SetUpServerAndDB() {
   try {

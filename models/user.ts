@@ -5,6 +5,7 @@ interface UserAttributes {
   name: string;
   email: string;
   mobile_number: string;
+  profile_img: string; // Make profile_img optional with ?
   interests: string[];
   likes: string[];
   createdAt?: Date;
@@ -83,6 +84,10 @@ class User
   public get likes(): string[] {
     return this.getDataValue("likes") || [];
   }
+
+  public get profile_img(): string {
+    return this.getDataValue("profile_img");
+  }
   // public get createdAt(): Date {
   //   return this.getDataValue("createdAt");
   // }
@@ -127,6 +132,10 @@ export default (sequelize: Sequelize) => {
         type: DataTypes.JSON,
         allowNull: true,
         defaultValue: [],
+      },
+      profile_img: {
+        type: DataTypes.STRING,
+        allowNull: true, // Allow null values
       },
     },
     {

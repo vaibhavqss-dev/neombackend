@@ -11,27 +11,9 @@ exports.default = (sequelize) => {
         event_id: {
             type: sequelize_1.DataTypes.INTEGER,
             allowNull: false,
-        },
-        time: {
-            type: sequelize_1.DataTypes.STRING,
-            allowNull: false,
-        },
-        date: {
-            type: sequelize_1.DataTypes.DATE,
-            allowNull: false,
-        },
-        category: {
-            type: sequelize_1.DataTypes.STRING,
-            allowNull: false,
-        },
-        location: {
-            type: sequelize_1.DataTypes.STRING,
-            allowNull: false,
-        },
-        image_urls: {
-            type: sequelize_1.DataTypes.STRING,
-            allowNull: false,
-        },
+        }
+    }, {
+        timestamps: true,
     });
     return TrendingActivity;
 };

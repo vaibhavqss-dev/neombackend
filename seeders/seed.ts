@@ -1,5 +1,13 @@
-import { sequelize } from "../db/db_connection";
-import { seedEvents, seedReviews, seedsignup } from "./seeder";
+import { sequelize } from "../db/db_connect";
+import {
+  seedEvents,
+  seedlogs,
+  seedRecommendations,
+  seedReservedEvents,
+  seedReviews,
+  seedsignup,
+  seedTrendingActivity,
+} from "./seeder";
 
 async function runSeeders() {
   try {
@@ -12,12 +20,16 @@ async function runSeeders() {
 
     // Sync models with database
     console.log("Syncing models with database...");
-    await sequelize.sync();
+    await sequelize.sync({ force: true });
 
     // Run seeders
     await seedEvents();
     await seedsignup();
     await seedReviews();
+    await seedReservedEvents();
+    await seedTrendingActivity();
+    await seedlogs();
+    await seedRecommendations();
 
     console.log("All seeders completed successfully!");
     process.exit(0);

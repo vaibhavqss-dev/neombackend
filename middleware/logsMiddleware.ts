@@ -1,7 +1,7 @@
 // this will create of every request made to the server
 
 import { Request, Response, NextFunction } from "express";
-import { Logs } from "../db/db_connection";
+import { Logs } from "../db/db_connect";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 dotenv.config();

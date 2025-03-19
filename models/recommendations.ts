@@ -1,14 +1,8 @@
 import { Sequelize, DataTypes } from "sequelize";
 
-interface ReservedEventAttributes {
-  id: number;
-  title: string;
-  start: Date;
-}
-
 export default (sequelize: Sequelize) => {
-  const reservedEvent = sequelize.define<any>(
-    "reserved_event",
+  const recommendation = sequelize.define<any>(
+    "recommendation",
     {
       id: {
         type: DataTypes.INTEGER,
@@ -19,18 +13,9 @@ export default (sequelize: Sequelize) => {
         type: DataTypes.INTEGER,
         allowNull: false,
       },
-      date_from: {
-        type: DataTypes.DATE,
+      event_type: {
+        type: DataTypes.STRING,
         allowNull: false,
-      },
-      date_to: {
-        type: DataTypes.DATE,
-        allowNull: false,
-      },
-      no_of_guest: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
-        defaultValue: 1,
       },
       event_id: {
         type: DataTypes.INTEGER,
@@ -41,5 +26,5 @@ export default (sequelize: Sequelize) => {
       timestamps: true,
     }
   );
-  return reservedEvent;
+  return recommendation;
 };
