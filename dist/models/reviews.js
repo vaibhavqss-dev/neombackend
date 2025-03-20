@@ -8,6 +8,26 @@ exports.default = (sequelize) => {
             autoIncrement: true,
             primaryKey: true,
         },
+        quality_of_event: {
+            type: sequelize_1.DataTypes.INTEGER,
+            allowNull: false,
+        },
+        service_of_event: {
+            type: sequelize_1.DataTypes.INTEGER,
+            allowNull: false,
+        },
+        facilites_of_event: {
+            type: sequelize_1.DataTypes.INTEGER,
+            allowNull: false,
+        },
+        staffPoliteness: {
+            type: sequelize_1.DataTypes.INTEGER,
+            allowNull: false,
+        },
+        operator_of_event: {
+            type: sequelize_1.DataTypes.INTEGER,
+            allowNull: false,
+        },
         user_id: {
             type: sequelize_1.DataTypes.INTEGER,
             allowNull: false,
@@ -17,7 +37,7 @@ exports.default = (sequelize) => {
             allowNull: true,
         },
         avg_rating: {
-            type: sequelize_1.DataTypes.INTEGER,
+            type: sequelize_1.DataTypes.FLOAT,
             allowNull: false,
         },
         date: {
@@ -36,6 +56,17 @@ exports.default = (sequelize) => {
         },
     }, {
         timestamps: true,
+        hooks: {
+            beforeCreate: async (reviews) => {
+                reviews.avg_rating =
+                    (reviews.quality_of_event +
+                        reviews.service_of_event +
+                        reviews.facilites_of_event +
+                        reviews.staffPoliteness +
+                        reviews.operator_of_event) /
+                        5;
+            },
+        },
     });
     return reviews;
 };

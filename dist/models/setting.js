@@ -44,8 +44,8 @@ exports.default = (sequelize) => {
             allowNull: false,
         },
         language: {
-            type: sequelize_1.DataTypes.BOOLEAN,
-            defaultValue: true,
+            type: sequelize_1.DataTypes.STRING,
+            defaultValue: "english",
             allowNull: false,
         },
     }, {

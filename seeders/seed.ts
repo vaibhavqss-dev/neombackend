@@ -23,10 +23,10 @@ async function runSeeders() {
     await sequelize.sync({ force: true });
 
     // Run seeders
-    await seedEvents();
     await seedsignup();
-    await seedReviews();
+    await seedEvents();
     await seedReservedEvents();
+    await seedReviews();
     await seedTrendingActivity();
     await seedlogs();
     await seedRecommendations();

@@ -22,7 +22,7 @@ export const seedsignup = async () => {
   try {
     for (const signupData of signup) {
       console.log(`Creating signup '${signupData.username}'...`);
-      try {
+      try {                               
         const [user, createdUser] = await User.findOrCreate({
           where: { name: signupData.name },
           defaults: {

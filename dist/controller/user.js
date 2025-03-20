@@ -1,12 +1,12 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getReservedEvents = exports.getTrendingActivity = exports.getRecommendation = exports.getReviews = exports.addReviews = exports.fetchVisitedEvents = exports.reserveEvent = exports.addInterested = exports.likeEvent = exports.changeSettings = exports.deleteUserProfile = exports.getUserProfile = exports.updateProfile_img = exports.updateProfile = void 0;
+exports.getReservedEvents = exports.getTrendingActivity = exports.getRecommendation = exports.getReviews = exports.addReviews = exports.fetchVisitedEvents = exports.reserveEvent = exports.addInterested = exports.likeEvent = exports.changeSettings = exports.getUserSettings = exports.deleteUserProfile = exports.getUserProfile = exports.updateProfile_img = exports.updateProfile = void 0;
 const db_connect_1 = require("../db/db_connect");
 const sequelize_1 = require("sequelize");
 const updateProfile = async (req, res) => {
     try {
         const { userId: user_id } = req.user;
-        const { name, email, mobilenumber, interests } = req.body;
+        const { name, email, mobilenumber, interests, dob, profile_img } = req.body;
         const user = await db_connect_1.User.findByPk(user_id);
         if (!user) {
             res.status(404).json({ success: false, message: "User not found" });
@@ -22,6 +22,10 @@ const updateProfile = async (req, res) => {
             updateData.mobilenumber = mobilenumber;
         if (interests !== undefined)
             updateData.interests = interests;
+        if (dob !== undefined)
+            updateData.dob = dob;
+        if (profile_img !== undefined)
+            updateData.profile_img = profile_img;
         await user.update(updateData);
         res.status(200).json({
             success: true,
@@ -87,7 +91,7 @@ const getUserProfile = async (req, res) => {
         res.status(200).json({
             success: true,
             message: "User retrieved successfully",
-            data: user,
+            profile: user,
         });
     }
     catch (error) {
@@ -118,13 +122,40 @@ const deleteUserProfile = async (req, res) => {
     }
 };
 exports.deleteUserProfile = deleteUserProfile;
+const getUserSettings = async (req, res) => {
+    try {
+        const { userId: user_id } = req.user;
+        const user = await db_connect_1.Auth.findByPk(user_id);
+        if (!user) {
+            res.status(404).json({ success: false, message: "User not found" });
+            return;
+        }
+        const settings = await db_connect_1.Setting.findOne({ where: { user_id } });
+        if (!settings) {
+            res.status(404).json({ success: false, message: "Settings not found" });
+            return;
+        }
+        res.status(200).json({
+            success: true,
+            message: "Settings retrieved successfully",
+            settings: settings,
+        });
+    }
+    catch (error) {
+        console.error("Error fetching settings:", error);
+        res
+            .status(500)
+            .json({ success: false, message: "Failed to retrieve settings" });
+    }
+};
+exports.getUserSettings = getUserSettings;
 const changeSettings = async (req, res) => {
     try {
         const { userId: user_id } = req.user;
         const { personalandAccount, operator, managedata, password_security, notification_email, notification_sms, notification_personalized, language, } = req.body;
-        const user = await db_connect_1.Auth.findByPk(user_id);
-        if (!user) {
-            res.status(404).json({ success: false, message: "Users123 not found" });
+        const setting = await db_connect_1.Setting.findOne({ where: { user_id } });
+        if (!setting) {
+            res.status(404).json({ success: false, message: "User not found" });
             return;
         }
         const updateSetting = {};
@@ -144,11 +175,12 @@ const changeSettings = async (req, res) => {
             updateSetting.notification_personalized = notification_personalized;
         if (language !== undefined)
             updateSetting.language = language;
-        await user.update({ updateSetting });
+        const updatedSettings = await setting.update(updateSetting);
         res.status(200).json({
             success: true,
             message: "Settings updated successfully",
             updated_fields: updateSetting,
+            updatedSettings,
         });
     }
     catch (error) {
@@ -254,7 +286,6 @@ exports.reserveEvent = reserveEvent;
 const fetchVisitedEvents = async (req, res) => {
     try {
         const { userId: user_id } = req.user;
-        const { event_id, date, time, location, event_type } = req.body;
         const user = await db_connect_1.User.findByPk(user_id);
         if (!user) {
             res.status(404).json({ success: false, message: "User not found" });
@@ -267,6 +298,18 @@ const fetchVisitedEvents = async (req, res) => {
                     [sequelize_1.Op.lt]: new Date(),
                 },
             },
+            include: [
+                {
+                    model: db_connect_1.Event,
+                    required: true,
+                },
+                {
+                    model: db_connect_1.Reviews,
+                    where: {
+                        user_id: user_id,
+                    },
+                },
+            ],
             limit: 20,
         });
         res.status(200).json({
@@ -345,7 +388,24 @@ const getReviews = async (req, res) => {
         }
         const reviews = await db_connect_1.Reviews.findAll({
             where: query,
-            limit: 20,
+            include: [
+                {
+                    model: db_connect_1.Event,
+                    required: false,
+                    attributes: [
+                        "event_id",
+                        "title",
+                        "location",
+                        "category",
+                        "date",
+                        "description",
+                        "image_urls",
+                        "subtext",
+                    ],
+                },
+            ],
+            limit: 5,
+            attributes: ["time", "date", "comment", "avg_rating"],
         });
         if (!reviews) {
             res.status(404).json({ success: false, message: "No reviews found" });
@@ -373,10 +433,28 @@ const getRecommendation = async (req, res) => {
             res.status(404).json({ success: false, message: "User not found" });
             return;
         }
-        const recommendation = await db_connect_1.Recommendations.findAll({
-            limit: 10,
+        const reservedEvents = await db_connect_1.ReservedEvent.findAll({
+            where: { user_id: userId },
+            attributes: ["event_id"],
         });
-        if (!recommendation) {
+        const reservedEventIds = reservedEvents.map((event) => event.event_id);
+        const recommendation = await db_connect_1.Recommendations.findAll({
+            limit: 5,
+            include: [
+                {
+                    model: db_connect_1.Event,
+                    required: true,
+                    where: reservedEventIds.length > 0
+                        ? {
+                            event_id: {
+                                [sequelize_1.Op.notIn]: reservedEventIds,
+                            },
+                        }
+                        : {},
+                },
+            ],
+        });
+        if (!recommendation || recommendation.length === 0) {
             res.status(404).json({
                 success: false,
                 message: "Please add your interest in setting to let us find some suggestion for you",
@@ -400,7 +478,13 @@ exports.getRecommendation = getRecommendation;
 const getTrendingActivity = async (_req, res) => {
     try {
         const events = await db_connect_1.TrendingActivity.findAll({
-            limit: 10,
+            limit: 5,
+            include: [
+                {
+                    model: db_connect_1.Event,
+                    required: true,
+                },
+            ],
         });
         if (!events) {
             res.status(404).json({ success: false, message: "No trending events" });
@@ -422,6 +506,7 @@ const getTrendingActivity = async (_req, res) => {
 exports.getTrendingActivity = getTrendingActivity;
 const getReservedEvents = async (req, res) => {
     try {
+        const IsCoordinates = req.query.coordinates || false;
         const { userId: user_id } = req.user;
         const reservedEvents = await db_connect_1.ReservedEvent.findAll({
             where: { user_id },
@@ -435,6 +520,19 @@ const getReservedEvents = async (req, res) => {
         });
         if (reservedEvents.length === 0) {
             res.status(404).json({ success: false, message: "No reserved events" });
+            return;
+        }
+        if (IsCoordinates) {
+            const coordinates = reservedEvents.map((event) => {
+                return {
+                    event: event.event,
+                };
+            });
+            res.status(200).json({
+                success: true,
+                message: "Reserved events retrieved successfully",
+                events: coordinates,
+            });
             return;
         }
         res.status(200).json({

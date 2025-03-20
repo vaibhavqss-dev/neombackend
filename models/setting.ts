@@ -1,4 +1,5 @@
 import { Sequelize, DataTypes } from "sequelize";
+import { notification } from "../controller/notification";
 
 interface SettingAttributes {
   id: number;
@@ -58,8 +59,8 @@ export default (sequelize: Sequelize) => {
         allowNull: false,
       },
       language: {
-        type: DataTypes.BOOLEAN,
-        defaultValue: true,
+        type: DataTypes.STRING,
+        defaultValue: "english",
         allowNull: false,
       },
     },

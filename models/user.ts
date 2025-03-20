@@ -10,6 +10,7 @@ interface UserAttributes {
   likes: string[];
   createdAt?: Date;
   updatedAt?: Date;
+  dob?: Date;
 }
 
 interface UserCreationAttributes
@@ -135,7 +136,12 @@ export default (sequelize: Sequelize) => {
       },
       profile_img: {
         type: DataTypes.STRING,
-        allowNull: true, // Allow null values
+        allowNull: true,
+      },
+      dob: {
+        type: DataTypes.DATE,
+        allowNull: true,
+        defaultValue: null,
       },
     },
     {

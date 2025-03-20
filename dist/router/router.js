@@ -26,7 +26,7 @@ router.route("/user/reserveevent").post(user_1.reserveEvent).get(user_1.getReser
 router.route("/user/visitedevent").get(user_1.fetchVisitedEvents);
 router.route("/user/review").post(user_1.addReviews).get(user_1.getReviews);
 router.route("/user/recommendation").get(user_1.getRecommendation);
-router.route("/user/settings").patch(user_1.changeSettings);
+router.route("/user/settings").patch(user_1.changeSettings).get(user_1.getUserSettings);
 router.route("/user/profile/uploadimg").post(user_1.updateProfile_img);
 const notification_1 = require("../controller/notification");
 router.route("/user/notification").get(notification_1.notification);

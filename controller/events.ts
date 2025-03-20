@@ -55,7 +55,7 @@ export const getEvents = async (
   res: Response
 ): Promise<void> => {
   try {
-    const { category, title, time, date } = _req.query;
+    const { category, title, time, date, location } = _req.query;
     const filter_event: any = {};
     if (category) {
       filter_event.category = category;
@@ -68,6 +68,9 @@ export const getEvents = async (
     }
     if (date) {
       filter_event.date = date;
+    }
+    if (location) {
+      filter_event.location = location;
     }
 
     if (Object.keys(filter_event).length === 0) {

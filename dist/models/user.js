@@ -102,6 +102,11 @@ exports.default = (sequelize) => {
             type: sequelize_1.DataTypes.STRING,
             allowNull: true,
         },
+        dob: {
+            type: sequelize_1.DataTypes.DATE,
+            allowNull: true,
+            defaultValue: null,
+        },
     }, {
         tableName: "users",
         timestamps: true,

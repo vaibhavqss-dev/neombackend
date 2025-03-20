@@ -20,9 +20,7 @@ seed:
 run:
 	node dist/server.js
 
-
-
-MESSAGE ?= "update"
+MESSAGE ?= "status: bug fixing and updation"
 .PHONY: commit
 commit:
 	git add .

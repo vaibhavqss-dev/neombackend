@@ -34,7 +34,7 @@ const postEvent = async (_req, res) => {
 exports.postEvent = postEvent;
 const getEvents = async (_req, res) => {
     try {
-        const { category, title, time, date } = _req.query;
+        const { category, title, time, date, location } = _req.query;
         const filter_event = {};
         if (category) {
             filter_event.category = category;
@@ -47,6 +47,9 @@ const getEvents = async (_req, res) => {
         }
         if (date) {
             filter_event.date = date;
+        }
+        if (location) {
+            filter_event.location = location;
         }
         if (Object.keys(filter_event).length === 0) {
             const events = await db_connect_1.Event.findAll({ limit: 10 });

@@ -8,6 +8,7 @@ import {
   Logs,
   Recommendations,
   TrendingActivity,
+  Setting,
 } from "../db/db_connect";
 import { Op } from "sequelize";
 
@@ -17,7 +18,7 @@ export const updateProfile = async (
 ): Promise<void> => {
   try {
     const { userId: user_id } = req.user;
-    const { name, email, mobilenumber, interests } = req.body;
+    const { name, email, mobilenumber, interests, dob, profile_img } = req.body;
     const user = await User.findByPk(user_id);
     if (!user) {
       res.status(404).json({ success: false, message: "User not found" });
@@ -30,6 +31,8 @@ export const updateProfile = async (
     if (email !== undefined) updateData.email = email;
     if (mobilenumber !== undefined) updateData.mobilenumber = mobilenumber;
     if (interests !== undefined) updateData.interests = interests;
+    if (dob !== undefined) updateData.dob = dob;
+    if (profile_img !== undefined) updateData.profile_img = profile_img;
 
     await user.update(updateData);
     res.status(200).json({
@@ -111,7 +114,7 @@ export const getUserProfile = async (
     res.status(200).json({
       success: true,
       message: "User retrieved successfully",
-      data: user,
+      profile: user,
     });
   } catch (error) {
     console.error("Error fetching user:", error);
@@ -144,6 +147,38 @@ export const deleteUserProfile = async (
   }
 };
 
+// get user settings
+export const getUserSettings = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const { userId: user_id } = req.user;
+    const user = await Auth.findByPk(user_id);
+    if (!user) {
+      res.status(404).json({ success: false, message: "User not found" });
+      return;
+    }
+
+    const settings = await Setting.findOne({ where: { user_id } });
+    if (!settings) {
+      res.status(404).json({ success: false, message: "Settings not found" });
+      return;
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Settings retrieved successfully",
+      settings: settings,
+    });
+  } catch (error) {
+    console.error("Error fetching settings:", error);
+    res
+      .status(500)
+      .json({ success: false, message: "Failed to retrieve settings" });
+  }
+};
+
 // change the settings of user given the body parameters
 export const changeSettings = async (
   req: Request,
@@ -161,9 +196,9 @@ export const changeSettings = async (
       notification_personalized,
       language,
     } = req.body;
-    const user = await Auth.findByPk(user_id);
-    if (!user) {
-      res.status(404).json({ success: false, message: "Users123 not found" });
+    const setting = await Setting.findOne({ where: { user_id } });
+    if (!setting) {
+      res.status(404).json({ success: false, message: "User not found" });
       return;
     }
 
@@ -182,11 +217,12 @@ export const changeSettings = async (
       updateSetting.notification_personalized = notification_personalized;
     if (language !== undefined) updateSetting.language = language;
 
-    await user.update({ updateSetting });
+    const updatedSettings = await setting.update(updateSetting);
     res.status(200).json({
       success: true,
       message: "Settings updated successfully",
       updated_fields: updateSetting,
+      updatedSettings,
     });
   } catch (error) {
     console.error("Error updating settings:", error);
@@ -309,7 +345,6 @@ export const fetchVisitedEvents = async (
 ): Promise<void> => {
   try {
     const { userId: user_id } = req.user;
-    const { event_id, date, time, location, event_type } = req.body;
     const user = await User.findByPk(user_id);
     if (!user) {
       res.status(404).json({ success: false, message: "User not found" });
@@ -322,6 +357,19 @@ export const fetchVisitedEvents = async (
           [Op.lt]: new Date(),
         },
       },
+      include: [
+        {
+          model: Event,
+          required: true,
+        },
+        {
+          model: Reviews,
+          // required: true,
+          where: {
+            user_id: user_id,
+          },
+        },
+      ],
       limit: 20,
     });
     res.status(200).json({
@@ -423,7 +471,24 @@ export const getReviews = async (
 
     const reviews = await Reviews.findAll({
       where: query,
-      limit: 20,
+      include: [
+        {
+          model: Event,
+          required: false,
+          attributes: [
+            "event_id",
+            "title",
+            "location",
+            "category",
+            "date",
+            "description",
+            "image_urls",
+            "subtext",
+          ],
+        },
+      ],
+      limit: 5,
+      attributes: ["time", "date", "comment", "avg_rating"],
     });
     if (!reviews) {
       res.status(404).json({ success: false, message: "No reviews found" });
@@ -454,10 +519,32 @@ export const getRecommendation = async (
       res.status(404).json({ success: false, message: "User not found" });
       return;
     }
-    const recommendation = await Recommendations.findAll({
-      limit: 10,
+
+    const reservedEvents = await ReservedEvent.findAll({
+      where: { user_id: userId },
+      attributes: ["event_id"],
     });
-    if (!recommendation) {
+    const reservedEventIds = reservedEvents.map((event) => event.event_id);
+
+    const recommendation = await Recommendations.findAll({
+      limit: 5,
+      include: [
+        {
+          model: Event,
+          required: true,
+          where:
+            reservedEventIds.length > 0
+              ? {
+                  event_id: {
+                    [Op.notIn]: reservedEventIds,
+                  },
+                }
+              : {},
+        },
+      ],
+    });
+
+    if (!recommendation || recommendation.length === 0) {
       res.status(404).json({
         success: false,
         message:
@@ -465,6 +552,7 @@ export const getRecommendation = async (
       });
       return;
     }
+
     res.status(200).json({
       success: true,
       message: "Recommendation retrieved successfully",
@@ -478,14 +566,19 @@ export const getRecommendation = async (
   }
 };
 
-// trending activity
 export const getTrendingActivity = async (
   _req: Request,
   res: Response
 ): Promise<void> => {
   try {
     const events = await TrendingActivity.findAll({
-      limit: 10,
+      limit: 5,
+      include: [
+        {
+          model: Event,
+          required: true,
+        },
+      ],
     });
     if (!events) {
       res.status(404).json({ success: false, message: "No trending events" });
@@ -510,6 +603,7 @@ export const getReservedEvents = async (
   res: Response
 ): Promise<void> => {
   try {
+    const IsCoordinates = req.query.coordinates || false;
     const { userId: user_id } = req.user;
     const reservedEvents = await ReservedEvent.findAll({
       where: { user_id },
@@ -525,6 +619,21 @@ export const getReservedEvents = async (
       res.status(404).json({ success: false, message: "No reserved events" });
       return;
     }
+
+    if (IsCoordinates) {
+      const coordinates = reservedEvents.map((event) => {
+        return {
+          event: event.event,
+        };
+      });
+      res.status(200).json({
+        success: true,
+        message: "Reserved events retrieved successfully",
+        events: coordinates,
+      });
+      return;
+    }
+
     res.status(200).json({
       success: true,
       message: "Reserved events retrieved successfully",

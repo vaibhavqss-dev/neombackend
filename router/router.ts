@@ -27,6 +27,7 @@ import {
   getReservedEvents,
   getReviews,
   updateProfile_img,
+  getUserSettings
 } from "../controller/user";
 
 router
@@ -40,7 +41,7 @@ router.route("/user/reserveevent").post(reserveEvent).get(getReservedEvents);
 router.route("/user/visitedevent").get(fetchVisitedEvents);
 router.route("/user/review").post(addReviews).get(getReviews);
 router.route("/user/recommendation").get(getRecommendation);
-router.route("/user/settings").patch(changeSettings);
+router.route("/user/settings").patch(changeSettings).get(getUserSettings);
 router.route("/user/profile/uploadimg").post(updateProfile_img);
 
 import { notification } from "../controller/notification";
@@ -60,6 +61,5 @@ router
   .patch(updateEvent)
   .delete(deleteEvent);
 
-// trending events
 router.route("/events/trending").get(getTrendingActivity);
 export default router;

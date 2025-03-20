@@ -10,10 +10,10 @@ async function runSeeders() {
         console.log("Database connection has been established successfully.");
         console.log("Syncing models with database...");
         await db_connect_1.sequelize.sync({ force: true });
-        await (0, seeder_1.seedEvents)();
         await (0, seeder_1.seedsignup)();
-        await (0, seeder_1.seedReviews)();
+        await (0, seeder_1.seedEvents)();
         await (0, seeder_1.seedReservedEvents)();
+        await (0, seeder_1.seedReviews)();
         await (0, seeder_1.seedTrendingActivity)();
         await (0, seeder_1.seedlogs)();
         await (0, seeder_1.seedRecommendations)();

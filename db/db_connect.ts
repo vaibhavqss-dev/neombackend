@@ -8,9 +8,7 @@ import {
   Logs,
   Reviews,
   Event,
-  VisitedEvent,
   TrendingActivity,
-  MyFeedback,
   Recommendations,
 } from "./db_config";
  
@@ -36,8 +34,6 @@ export {
   Logs,
   Reviews,
   Event,
-  VisitedEvent,
   TrendingActivity,
-  MyFeedback,
   Recommendations,
 };

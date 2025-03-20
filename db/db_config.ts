@@ -5,9 +5,7 @@ import ReservedEventModel from "../models/reserved_event";
 import LogsModel from "../models/logs";
 import ReviewsModel from "../models/reviews";
 import EventModel from "../models/event";
-import VisitedEventModel from "../models/visited_events";
 import TrendingActivityModel from "../models/Trending_activity";
-import MyFeedbackModel from "../models/myfeedback";
 import recommendationsModel from "../models/recommendations";
 import { sequelize } from "../config/database";
 
@@ -18,9 +16,7 @@ const ReservedEvent = ReservedEventModel(sequelize);
 const Logs = LogsModel(sequelize);
 const Reviews = ReviewsModel(sequelize);
 const Event = EventModel(sequelize);
-const VisitedEvent = VisitedEventModel(sequelize);
 const TrendingActivity = TrendingActivityModel(sequelize);
-const MyFeedback = MyFeedbackModel(sequelize);
 const Recommendations = recommendationsModel(sequelize);
 
 User.hasOne(Auth, {
@@ -81,6 +77,17 @@ ReservedEvent.belongsTo(Event, {
   constraints: true,
 });
 
+// Reviews.belongsTo(ReservedEvent, {
+//   foreignKey: "event_id",
+//   constraints: true,
+// });
+
+ReservedEvent.hasMany(Reviews, {
+  foreignKey: "event_id",
+  // constraints: true,
+  foreignKeyConstraint: false,
+});
+
 Reviews.belongsTo(User, {
   foreignKey: "user_id",
   onDelete: "CASCADE",
@@ -88,24 +95,6 @@ Reviews.belongsTo(User, {
 });
 User.hasMany(Reviews, {
   foreignKey: "user_id",
-});
-
-VisitedEvent.belongsTo(User, {
-  foreignKey: "user_id",
-  constraints: true,
-  onDelete: "CASCADE",
-});
-User.hasMany(VisitedEvent, {
-  foreignKey: "user_id",
-  onDelete: "CASCADE",
-});
-
-VisitedEvent.belongsTo(Event, {
-  foreignKey: "event_id",
-});
-Event.hasMany(VisitedEvent, {
-  foreignKey: "event_id",
-  constraints: true,
 });
 
 Reviews.belongsTo(Event, {
@@ -123,6 +112,11 @@ TrendingActivity.belongsTo(Event, {
   onDelete: "CASCADE",
 });
 
+Recommendations.belongsTo(Event, {
+  foreignKey: "event_id",
+  constraints: true,
+  onDelete: "CASCADE",
+});
 
 export {
   Auth,
@@ -132,8 +126,6 @@ export {
   Logs,
   Reviews,
   Event,
-  VisitedEvent, 
   TrendingActivity,
-  MyFeedback,
   Recommendations,
 };
