@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { Auth, User, sequelize } from "../db/db_connect";
 import jwt from "jsonwebtoken";
- 
+
 export const loginUser = async (req: Request, res: Response): Promise<void> => {
   try {
     const { username, password } = req.body;
@@ -36,7 +36,7 @@ export const loginUser = async (req: Request, res: Response): Promise<void> => {
     res.status(500).json({ success: false, message: "Login failed" });
   }
 };
- 
+
 export const userSignup = async (
   req: Request,
   res: Response
@@ -62,6 +62,7 @@ export const userSignup = async (
           email,
           mobile_number,
           interests: [],
+          likes: [],
           profile_img:
             "https://oplsgvveavucoyuifbte.supabase.co/storage/v1/object/public/neom-images/assests/profilePic.png",
         },

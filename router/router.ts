@@ -27,7 +27,11 @@ import {
   getReservedEvents,
   getReviews,
   updateProfile_img,
-  getUserSettings
+  getUserSettings,
+  getLikeEvent,
+  UnlikeEvent,
+  vibometer,
+  rescheduleEvent,
 } from "../controller/user";
 
 router
@@ -35,7 +39,11 @@ router
   .get(getUserProfile)
   .delete(deleteUserProfile)
   .patch(updateProfile);
-router.route("/user/likeevent").post(likeEvent);
+router
+  .route("/user/likeevent")
+  .post(likeEvent)
+  .get(getLikeEvent)
+  .delete(UnlikeEvent);
 router.route("/user/event/interested").post(addInterested);
 router.route("/user/reserveevent").post(reserveEvent).get(getReservedEvents);
 router.route("/user/visitedevent").get(fetchVisitedEvents);
@@ -43,11 +51,12 @@ router.route("/user/review").post(addReviews).get(getReviews);
 router.route("/user/recommendation").get(getRecommendation);
 router.route("/user/settings").patch(changeSettings).get(getUserSettings);
 router.route("/user/profile/uploadimg").post(updateProfile_img);
+router.route("/user/vibometer").post(vibometer);
+router.route("/user/event/reschedule").patch(rescheduleEvent);
 
 import { notification } from "../controller/notification";
 router.route("/user/notification").get(notification);
 
-// Event Routes
 import {
   deleteEvent,
   getEvents,

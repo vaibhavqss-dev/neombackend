@@ -27,6 +27,10 @@ export default (sequelize: Sequelize) => {
         type: DataTypes.DATE,
         allowNull: false,
       },
+      time: {
+        type: DataTypes.TIME,
+        allowNull: true,
+      },
       no_of_guest: {
         type: DataTypes.INTEGER,
         allowNull: false,

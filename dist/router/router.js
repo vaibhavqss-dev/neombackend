@@ -20,7 +20,11 @@ router
     .get(user_1.getUserProfile)
     .delete(user_1.deleteUserProfile)
     .patch(user_1.updateProfile);
-router.route("/user/likeevent").post(user_1.likeEvent);
+router
+    .route("/user/likeevent")
+    .post(user_1.likeEvent)
+    .get(user_1.getLikeEvent)
+    .delete(user_1.UnlikeEvent);
 router.route("/user/event/interested").post(user_1.addInterested);
 router.route("/user/reserveevent").post(user_1.reserveEvent).get(user_1.getReservedEvents);
 router.route("/user/visitedevent").get(user_1.fetchVisitedEvents);
@@ -28,6 +32,8 @@ router.route("/user/review").post(user_1.addReviews).get(user_1.getReviews);
 router.route("/user/recommendation").get(user_1.getRecommendation);
 router.route("/user/settings").patch(user_1.changeSettings).get(user_1.getUserSettings);
 router.route("/user/profile/uploadimg").post(user_1.updateProfile_img);
+router.route("/user/vibometer").post(user_1.vibometer);
+router.route("/user/event/reschedule").patch(user_1.rescheduleEvent);
 const notification_1 = require("../controller/notification");
 router.route("/user/notification").get(notification_1.notification);
 const events_1 = require("../controller/events");

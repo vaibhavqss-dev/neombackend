@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getReservedEvents = exports.getTrendingActivity = exports.getRecommendation = exports.getReviews = exports.addReviews = exports.fetchVisitedEvents = exports.reserveEvent = exports.addInterested = exports.likeEvent = exports.changeSettings = exports.getUserSettings = exports.deleteUserProfile = exports.getUserProfile = exports.updateProfile_img = exports.updateProfile = void 0;
+exports.rescheduleEvent = exports.vibometer = exports.getReservedEvents = exports.getTrendingActivity = exports.getRecommendation = exports.getReviews = exports.addReviews = exports.fetchVisitedEvents = exports.reserveEvent = exports.addInterested = exports.getLikeEvent = exports.UnlikeEvent = exports.likeEvent = exports.changeSettings = exports.getUserSettings = exports.deleteUserProfile = exports.getUserProfile = exports.updateProfile_img = exports.updateProfile = void 0;
 const db_connect_1 = require("../db/db_connect");
 const sequelize_1 = require("sequelize");
 const updateProfile = async (req, res) => {
@@ -40,6 +40,7 @@ const updateProfile = async (req, res) => {
 };
 exports.updateProfile = updateProfile;
 const get_signed_url_1 = require("../services/get_signed_url");
+const db_config_1 = require("../db/db_config");
 const updateProfile_img = async (req, res) => {
     try {
         const { userId: user_id } = req.user;
@@ -64,9 +65,6 @@ const updateProfile_img = async (req, res) => {
             });
             return;
         }
-        await user.update({
-            profile_img: `https://oplsgvveavucoyuifbte.supabase.co/storage/v1/object/public/neom-images/${signedUrlData.path}`,
-        });
         res.status(200).json({
             success: true,
             message: "Profile image upload URL generated successfully",
@@ -217,6 +215,65 @@ const likeEvent = async (req, res) => {
     }
 };
 exports.likeEvent = likeEvent;
+const UnlikeEvent = async (req, res) => {
+    try {
+        const { userId: user_id } = req.user;
+        const { event_id } = req.body;
+        const user = await db_connect_1.User.findOne({ where: { id: user_id } });
+        if (!user) {
+            res.status(404).json({ success: false, message: "User not found" });
+            return;
+        }
+        let isOk = await user.UnlikeEvent(event_id);
+        if (!isOk) {
+            res
+                .status(400)
+                .json({ success: false, message: "No Event present with given Id" });
+            return;
+        }
+        res.status(200).json({
+            success: true,
+            message: "Event removed from liked events successfully",
+        });
+    }
+    catch (error) {
+        console.error("Error unliking event:", error);
+        res.status(500).json({ success: false, message: "Failed to unlike event" });
+    }
+};
+exports.UnlikeEvent = UnlikeEvent;
+const getLikeEvent = async (req, res) => {
+    try {
+        const { userId: user_id } = req.user;
+        let likes = await db_connect_1.User.findOne({
+            where: { id: user_id },
+            attributes: ["likes"],
+        });
+        if (!likes) {
+            res.status(404).json({ success: false, message: "No liked events" });
+            return;
+        }
+        const likedEvents = await db_connect_1.Event.findAll({
+            where: {
+                event_id: {
+                    [sequelize_1.Op.in]: likes.likes,
+                },
+            },
+        });
+        res.status(200).json({
+            success: true,
+            message: "Liked events retrieved successfully",
+            events: likedEvents,
+        });
+    }
+    catch (error) {
+        console.error("Error fetching liked events:", error);
+        res
+            .status(500)
+            .json({ success: false, message: "Failed to fetch liked events" });
+    }
+};
+exports.getLikeEvent = getLikeEvent;
 const addInterested = async (req, res) => {
     try {
         const { userId: user_id } = req.user;
@@ -328,7 +385,7 @@ exports.fetchVisitedEvents = fetchVisitedEvents;
 const addReviews = async (req, res) => {
     try {
         const { userId: user_id } = req.user;
-        const { quality_of_event, service_of_event, facilites_of_event, staffPoliteness, operator_of_event, event_name, event_id, location, event_category, comment, } = req.body;
+        const { quality_of_event, service_of_event, facilites_of_event, staffPoliteness, operator_of_event, event_id, comment, } = req.body;
         const user = await db_connect_1.User.findByPk(user_id);
         if (!user) {
             res.status(404).json({ success: false, message: "User not found" });
@@ -344,14 +401,15 @@ const addReviews = async (req, res) => {
             let isReviewed = await db_connect_1.Reviews.create({
                 user_id,
                 event_id,
-                username: user.name,
                 comment,
                 date: new Date(),
                 time: new Date().toLocaleTimeString(),
-                location,
-                event_category,
-                event_name,
-                rating,
+                avg_rating: rating,
+                quality_of_event,
+                service_of_event,
+                facilites_of_event,
+                staffPoliteness,
+                operator_of_event,
             });
         }
         catch (error) {
@@ -509,7 +567,12 @@ const getReservedEvents = async (req, res) => {
         const IsCoordinates = req.query.coordinates || false;
         const { userId: user_id } = req.user;
         const reservedEvents = await db_connect_1.ReservedEvent.findAll({
-            where: { user_id },
+            where: {
+                user_id,
+                date_to: {
+                    [sequelize_1.Op.gt]: new Date(),
+                },
+            },
             include: [
                 {
                     model: db_connect_1.Event,
@@ -549,3 +612,71 @@ const getReservedEvents = async (req, res) => {
     }
 };
 exports.getReservedEvents = getReservedEvents;
+const vibometer = async (req, res) => {
+    try {
+        const { userId: user_id } = req.user;
+        const { event_id, vibe } = req.body;
+        const user = await db_connect_1.User.findByPk(user_id);
+        if (!user) {
+            res.status(404).json({ success: false, message: "User not found" });
+            return;
+        }
+        let isVibometer = await db_config_1.Vibometer.create({
+            event_id,
+            user_id,
+            vibe,
+        });
+        if (!isVibometer) {
+            res
+                .status(400)
+                .json({ success: false, message: "Vibometer already exists" });
+            return;
+        }
+        res.status(200).json({
+            success: true,
+            message: "Vibometer Added successfully",
+        });
+    }
+    catch (error) {
+        console.error("Error adding vibometer:", error);
+        res
+            .status(500)
+            .json({ success: false, message: "Failed to add vibometer" });
+    }
+};
+exports.vibometer = vibometer;
+const rescheduleEvent = async (req, res) => {
+    try {
+        const { userId: user_id } = req.user;
+        const { event_id, date, time, no_of_guest } = req.body;
+        const user = await db_connect_1.User.findByPk(user_id);
+        if (!user) {
+            res.status(404).json({ success: false, message: "User not found" });
+            return;
+        }
+        const reservedEvent = await db_connect_1.ReservedEvent.findOne({
+            where: { user_id, event_id },
+        });
+        if (!reservedEvent) {
+            res
+                .status(404)
+                .json({
+                success: false,
+                message: "Event not found in reserved events",
+            });
+            return;
+        }
+        await reservedEvent.update({ date, time, no_of_guest });
+        res.status(200).json({
+            success: true,
+            message: "Event rescheduled successfully",
+        });
+    }
+    catch (error) {
+        console.error("Error rescheduling event:", error);
+        res
+            .status(500)
+            .json({ success: false, message: "Failed to reschedule event" });
+    }
+};
+exports.rescheduleEvent = rescheduleEvent;

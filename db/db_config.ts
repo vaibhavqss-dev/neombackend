@@ -7,6 +7,7 @@ import ReviewsModel from "../models/reviews";
 import EventModel from "../models/event";
 import TrendingActivityModel from "../models/Trending_activity";
 import recommendationsModel from "../models/recommendations";
+import vibometerModel from "../models/vibometer";
 import { sequelize } from "../config/database";
 
 const Auth = AuthModel(sequelize);
@@ -18,6 +19,7 @@ const Reviews = ReviewsModel(sequelize);
 const Event = EventModel(sequelize);
 const TrendingActivity = TrendingActivityModel(sequelize);
 const Recommendations = recommendationsModel(sequelize);
+const Vibometer = vibometerModel(sequelize);
 
 User.hasOne(Auth, {
   foreignKey: "user_id",
@@ -118,6 +120,32 @@ Recommendations.belongsTo(Event, {
   onDelete: "CASCADE",
 });
 
+Vibometer.belongsTo(User, {
+  foreignKey: "user_id",
+  onDelete: "CASCADE",
+  constraints: true,
+});
+
+Vibometer.belongsTo(Event, {
+  foreignKey: "event_id",
+  onDelete: "CASCADE",
+  constraints: true,
+});
+
+// Add a unique constraint to ensure a user can create only one Vibometer entry per event
+// Vibometer.addConstraint('vibometers', {
+//   fields: ['user_id', 'event_id'],
+//   type: 'unique',
+//   name: 'unique_user_event_vibometer'
+// });
+
+
+// sequelize.addConstraint("vibometers", {
+//   fields: ["user_id", "event_id"],
+//   type: "unique",
+//   name: "unique_user_event_vibometer",
+// });
+
 export {
   Auth,
   User,
@@ -128,4 +156,5 @@ export {
   Event,
   TrendingActivity,
   Recommendations,
+  Vibometer,
 };

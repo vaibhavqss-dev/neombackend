@@ -1,8 +1,8 @@
 import { Request, Response } from "express";
-import { Event } from "../db/db_connect";
+import { Event, ReservedEvent, Reviews, User } from "../db/db_connect";
 import { getCurrentTime } from "./utility";
+import { Op } from "sequelize";
 
-// Postevent
 export const postEvent = async (
   _req: Request,
   res: Response
@@ -55,7 +55,7 @@ export const getEvents = async (
   res: Response
 ): Promise<void> => {
   try {
-    const { category, title, time, date, location } = _req.query;
+    const { category, title, time, date, location, event_id } = _req.query;
     const filter_event: any = {};
     if (category) {
       filter_event.category = category;
@@ -72,17 +72,50 @@ export const getEvents = async (
     if (location) {
       filter_event.location = location;
     }
+    if (event_id) {
+      filter_event.id = event_id;
+    }
 
-    if (Object.keys(filter_event).length === 0) {
-      const events = await Event.findAll({ limit: 10 });
-      res.status(200).json({ success: true, data: events, isFiltered: false });
+    if (event_id != null) {
+      const event = await Event.findOne({
+        where: { event_id: event_id },
+        include: [
+          {
+            model: Reviews,
+            required: false,
+            attributes: ["comment", "user_id", "avg_rating", "createdAt", "id"],
+            include: [
+              {
+                model: User,
+                required: false,
+                attributes: ["name", "email", "profile_img"],
+              },
+            ],
+          },
+        ],
+      });
+      res.status(200).json({ success: true, event: event });
       return;
+    }
+
+    const reservedEventIds = await ReservedEvent.findAll({
+      attributes: ["event_id"],
+      raw: true,
+    });
+
+    const reservedIds = reservedEventIds.map((item) => item.event_id);
+
+    if (reservedIds.length > 0) {
+      filter_event.event_id = {
+        [Op.notIn]: reservedIds,
+      };
     }
 
     const events = await Event.findAll({
       where: filter_event,
       limit: 10,
     });
+
     res.status(200).json({ success: true, data: events, isFiltered: true });
   } catch (error) {
     console.error("Error getting events:", error);
@@ -162,3 +195,4 @@ export const deleteEvent = async (
     res.status(500).json({ success: false, message: "Failed to delete event" });
   }
 };
+

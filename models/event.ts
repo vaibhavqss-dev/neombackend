@@ -72,6 +72,14 @@ export default (sequelize: Sequelize) => {
         type: DataTypes.STRING,
         allowNull: false,
       },
+      operator_name: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      available_seats: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+      },
     },
     {
       timestamps: true,

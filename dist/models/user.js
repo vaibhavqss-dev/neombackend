@@ -21,6 +21,25 @@ class User extends sequelize_1.Model {
             return false;
         }
     }
+    async UnlikeEvent(eventId) {
+        try {
+            if (!eventId) {
+                console.error("Invalid event ID provided");
+                return false;
+            }
+            const currentLikes = this.get("likes") || [];
+            if (currentLikes.includes(eventId)) {
+                this.set("likes", currentLikes.filter((id) => id !== eventId));
+                await this.save();
+                return true;
+            }
+            return false;
+        }
+        catch (error) {
+            console.error("Error removing liked event:", error);
+            return false;
+        }
+    }
     async addInterested(interest) {
         try {
             if (!interest) {

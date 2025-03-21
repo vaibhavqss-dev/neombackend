@@ -38,7 +38,7 @@ exports.default = (sequelize) => {
         },
         avg_rating: {
             type: sequelize_1.DataTypes.FLOAT,
-            allowNull: false,
+            allowNull: true,
         },
         date: {
             type: sequelize_1.DataTypes.DATE,

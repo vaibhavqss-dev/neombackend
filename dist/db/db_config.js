@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Recommendations = exports.TrendingActivity = exports.Event = exports.Reviews = exports.Logs = exports.ReservedEvent = exports.Setting = exports.User = exports.Auth = void 0;
+exports.Vibometer = exports.Recommendations = exports.TrendingActivity = exports.Event = exports.Reviews = exports.Logs = exports.ReservedEvent = exports.Setting = exports.User = exports.Auth = void 0;
 const auth_1 = __importDefault(require("../models/auth"));
 const user_1 = __importDefault(require("../models/user"));
 const setting_1 = __importDefault(require("../models/setting"));
@@ -13,6 +13,7 @@ const reviews_1 = __importDefault(require("../models/reviews"));
 const event_1 = __importDefault(require("../models/event"));
 const Trending_activity_1 = __importDefault(require("../models/Trending_activity"));
 const recommendations_1 = __importDefault(require("../models/recommendations"));
+const vibometer_1 = __importDefault(require("../models/vibometer"));
 const database_1 = require("../config/database");
 const Auth = (0, auth_1.default)(database_1.sequelize);
 exports.Auth = Auth;
@@ -32,6 +33,8 @@ const TrendingActivity = (0, Trending_activity_1.default)(database_1.sequelize);
 exports.TrendingActivity = TrendingActivity;
 const Recommendations = (0, recommendations_1.default)(database_1.sequelize);
 exports.Recommendations = Recommendations;
+const Vibometer = (0, vibometer_1.default)(database_1.sequelize);
+exports.Vibometer = Vibometer;
 User.hasOne(Auth, {
     foreignKey: "user_id",
     onDelete: "CASCADE",
@@ -108,4 +111,14 @@ Recommendations.belongsTo(Event, {
     foreignKey: "event_id",
     constraints: true,
     onDelete: "CASCADE",
+});
+Vibometer.belongsTo(User, {
+    foreignKey: "user_id",
+    onDelete: "CASCADE",
+    constraints: true,
+});
+Vibometer.belongsTo(Event, {
+    foreignKey: "event_id",
+    onDelete: "CASCADE",
+    constraints: true,
 });

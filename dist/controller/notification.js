@@ -8,8 +8,9 @@ const notification = (req, res) => {
         res.setHeader("Cache-Control", "no-cache");
         res.setHeader("Connection", "keep-alive");
         const { userId: user_id } = req.user;
-        const clientId = req.query.user_id?.toString() || Date.now().toString();
+        const clientId = user_id?.toString() || Date.now().toString();
         clients.set(clientId, res);
+        console.log(`Client ${clientId} connected`);
         req.on("close", () => {
             clients.delete(clientId);
             console.log(`Client ${clientId} disconnected`);
@@ -65,3 +66,13 @@ const sendNotificationToClient = (user_id, data) => {
     return false;
 };
 exports.sendNotificationToClient = sendNotificationToClient;
+setInterval(() => {
+    (0, exports.sendNotificationToClient)("1", {
+        type: "notification",
+        message: "Hello from server",
+        msgid: 1,
+        event_id: 2,
+        event_name: "Event 2",
+    });
+    console.log("Sent notification to client 1");
+}, 5000);

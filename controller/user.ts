@@ -47,6 +47,7 @@ export const updateProfile = async (
 };
 
 import { getSignedUrl } from "../services/get_signed_url";
+import { Vibometer } from "../db/db_config";
 export const updateProfile_img = async (
   req: Request,
   res: Response
@@ -81,12 +82,6 @@ export const updateProfile_img = async (
       });
       return;
     }
-
-    // Store the file path, not the signed URL
-    await user.update({
-      profile_img: `https://oplsgvveavucoyuifbte.supabase.co/storage/v1/object/public/neom-images/${signedUrlData.path}`,
-    });
-
     res.status(200).json({
       success: true,
       message: "Profile image upload URL generated successfully",
@@ -179,7 +174,6 @@ export const getUserSettings = async (
   }
 };
 
-// change the settings of user given the body parameters
 export const changeSettings = async (
   req: Request,
   res: Response
@@ -255,6 +249,74 @@ export const likeEvent = async (req: Request, res: Response): Promise<void> => {
   } catch (error) {
     console.error("Error liking event:", error);
     res.status(500).json({ success: false, message: "Failed to like event" });
+  }
+};
+
+export const UnlikeEvent = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const { userId: user_id } = req.user;
+    const { event_id } = req.body;
+    const user = await User.findOne({ where: { id: user_id } });
+    if (!user) {
+      res.status(404).json({ success: false, message: "User not found" });
+      return;
+    }
+
+    let isOk = await user.UnlikeEvent(event_id);
+    if (!isOk) {
+      res
+        .status(400)
+        .json({ success: false, message: "No Event present with given Id" });
+      return;
+    }
+    res.status(200).json({
+      success: true,
+      message: "Event removed from liked events successfully",
+    });
+  } catch (error) {
+    console.error("Error unliking event:", error);
+    res.status(500).json({ success: false, message: "Failed to unlike event" });
+  }
+};
+
+export const getLikeEvent = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const { userId: user_id } = req.user;
+
+    let likes = await User.findOne({
+      where: { id: user_id },
+      attributes: ["likes"],
+    });
+
+    if (!likes) {
+      res.status(404).json({ success: false, message: "No liked events" });
+      return;
+    }
+
+    const likedEvents = await Event.findAll({
+      where: {
+        event_id: {
+          [Op.in]: likes.likes,
+        },
+      },
+    });
+
+    res.status(200).json({
+      success: true,
+      message: "Liked events retrieved successfully",
+      events: likedEvents,
+    });
+  } catch (error) {
+    console.error("Error fetching liked events:", error);
+    res
+      .status(500)
+      .json({ success: false, message: "Failed to fetch liked events" });
   }
 };
 
@@ -397,10 +459,7 @@ export const addReviews = async (
       facilites_of_event,
       staffPoliteness,
       operator_of_event,
-      event_name,
       event_id,
-      location,
-      event_category,
       comment,
     } = req.body;
 
@@ -421,14 +480,15 @@ export const addReviews = async (
       let isReviewed = await Reviews.create({
         user_id,
         event_id,
-        username: user.name,
         comment,
         date: new Date(),
         time: new Date().toLocaleTimeString(),
-        location,
-        event_category,
-        event_name,
-        rating,
+        avg_rating: rating,
+        quality_of_event,
+        service_of_event,
+        facilites_of_event,
+        staffPoliteness,
+        operator_of_event,
       });
     } catch (error) {
       if (
@@ -507,7 +567,6 @@ export const getReviews = async (
   }
 };
 
-// recommendation
 export const getRecommendation = async (
   req: Request,
   res: Response
@@ -606,7 +665,12 @@ export const getReservedEvents = async (
     const IsCoordinates = req.query.coordinates || false;
     const { userId: user_id } = req.user;
     const reservedEvents = await ReservedEvent.findAll({
-      where: { user_id },
+      where: {
+        user_id,
+        date_to: {
+          [Op.gt]: new Date(),
+        },
+      },
       include: [
         {
           model: Event,
@@ -644,5 +708,77 @@ export const getReservedEvents = async (
     res
       .status(500)
       .json({ success: false, message: "Failed to retrieve reserved events" });
+  }
+};
+
+export const vibometer = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { userId: user_id } = req.user;
+    const { event_id, vibe } = req.body;
+    const user = await User.findByPk(user_id);
+    if (!user) {
+      res.status(404).json({ success: false, message: "User not found" });
+      return;
+    }
+    let isVibometer = await Vibometer.create({
+      event_id,
+      user_id,
+      vibe,
+    });
+
+    if (!isVibometer) {
+      res
+        .status(400)
+        .json({ success: false, message: "Vibometer already exists" });
+      return;
+    }
+    res.status(200).json({
+      success: true,
+      message: "Vibometer Added successfully",
+    });
+  } catch (error) {
+    console.error("Error adding vibometer:", error);
+    res
+      .status(500)
+      .json({ success: false, message: "Failed to add vibometer" });
+  }
+};
+
+export const rescheduleEvent = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const { userId: user_id } = req.user;
+    const { event_id, date, time, no_of_guest } = req.body;
+    const user = await User.findByPk(user_id);
+    if (!user) {
+      res.status(404).json({ success: false, message: "User not found" });
+      return;
+    }
+
+    const reservedEvent = await ReservedEvent.findOne({
+      where: { user_id, event_id },
+    });
+    if (!reservedEvent) {
+      res
+        .status(404)
+        .json({
+          success: false,
+          message: "Event not found in reserved events",
+        });
+      return;
+    }
+
+    await reservedEvent.update({ date, time, no_of_guest });
+    res.status(200).json({
+      success: true,
+      message: "Event rescheduled successfully",
+    });
+  } catch (error) {
+    console.error("Error rescheduling event:", error);
+    res
+      .status(500)
+      .json({ success: false, message: "Failed to reschedule event" });
   }
 };

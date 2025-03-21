@@ -1,16 +1,13 @@
-# Makefile for database operations
-
-# Default target
 .PHONY: all
 all: help
 
-# Help target
 .PHONY: help
 help:
 	@echo "Available commands:"
 	@echo "  make seed    - Seeds the database with initial data"
+	@echo "  make run     - Runs the server"
+	@echo "  make commit  - Commits the changes to the repository"
 
-# Seed the database
 .PHONY: seed
 seed:
 	@echo "Seeding database..."

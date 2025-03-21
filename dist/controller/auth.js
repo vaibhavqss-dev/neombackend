@@ -54,6 +54,7 @@ const userSignup = async (req, res) => {
                 email,
                 mobile_number,
                 interests: [],
+                likes: [],
                 profile_img: "https://oplsgvveavucoyuifbte.supabase.co/storage/v1/object/public/neom-images/assests/profilePic.png",
             }, { transaction: t });
             const user = await db_connect_1.Auth.create({

@@ -30,7 +30,7 @@ export const seedsignup = async () => {
             email: signupData.email,
             mobile_number: signupData.mobile_number,
             interests: ["music", "sports"],
-            likes: ["event1", "event2"],
+            likes: ["1", "2"],
             profile_img: signupData.profile_img,
           },
         });

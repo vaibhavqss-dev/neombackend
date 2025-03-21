@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteEvent = exports.updateEvent = exports.getEvents = exports.postEvent = void 0;
 const db_connect_1 = require("../db/db_connect");
 const utility_1 = require("./utility");
+const sequelize_1 = require("sequelize");
 const postEvent = async (_req, res) => {
     try {
         const { title, category, date, location, description, latitude, longitude, subtext, image_urls, overall_rating, min_temprature, max_temprature, avg_rating, no_reviews, } = _req.body;
@@ -34,7 +35,7 @@ const postEvent = async (_req, res) => {
 exports.postEvent = postEvent;
 const getEvents = async (_req, res) => {
     try {
-        const { category, title, time, date, location } = _req.query;
+        const { category, title, time, date, location, event_id } = _req.query;
         const filter_event = {};
         if (category) {
             filter_event.category = category;
@@ -51,10 +52,39 @@ const getEvents = async (_req, res) => {
         if (location) {
             filter_event.location = location;
         }
-        if (Object.keys(filter_event).length === 0) {
-            const events = await db_connect_1.Event.findAll({ limit: 10 });
-            res.status(200).json({ success: true, data: events, isFiltered: false });
+        if (event_id) {
+            filter_event.id = event_id;
+        }
+        if (event_id != null) {
+            const event = await db_connect_1.Event.findOne({
+                where: { event_id: event_id },
+                include: [
+                    {
+                        model: db_connect_1.Reviews,
+                        required: false,
+                        attributes: ["comment", "user_id", "avg_rating", "createdAt", "id"],
+                        include: [
+                            {
+                                model: db_connect_1.User,
+                                required: false,
+                                attributes: ["name", "email", "profile_img"],
+                            },
+                        ],
+                    },
+                ],
+            });
+            res.status(200).json({ success: true, event: event });
             return;
+        }
+        const reservedEventIds = await db_connect_1.ReservedEvent.findAll({
+            attributes: ["event_id"],
+            raw: true,
+        });
+        const reservedIds = reservedEventIds.map((item) => item.event_id);
+        if (reservedIds.length > 0) {
+            filter_event.event_id = {
+                [sequelize_1.Op.notIn]: reservedIds,
+            };
         }
         const events = await db_connect_1.Event.findAll({
             where: filter_event,

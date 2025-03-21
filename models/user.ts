@@ -42,6 +42,28 @@ class User
     }
   }
 
+  public async UnlikeEvent(eventId: string): Promise<boolean> {
+    try {
+      if (!eventId) {
+        console.error("Invalid event ID provided");
+        return false;
+      }
+      const currentLikes = (this.get("likes") as string[] | null) || [];
+      if (currentLikes.includes(eventId)) {
+        this.set(
+          "likes",
+          currentLikes.filter((id) => id !== eventId)
+        );
+        await this.save();
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error("Error removing liked event:", error);
+      return false;
+    }
+  }
+
   public async addInterested(interest: string): Promise<boolean> {
     try {
       if (!interest) {
