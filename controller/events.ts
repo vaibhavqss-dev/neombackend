@@ -1,5 +1,11 @@
 import { Request, Response } from "express";
-import { Event, ReservedEvent, Reviews, User } from "../db/db_connect";
+import {
+  Event,
+  ReservedEvent,
+  Reviews,
+  sequelize,
+  User,
+} from "../db/db_connect";
 import { getCurrentTime } from "./utility";
 import { Op } from "sequelize";
 
@@ -76,6 +82,13 @@ export const getEvents = async (
       filter_event.id = event_id;
     }
 
+    const { userId: user_id } = _req.user;
+    const user = await User.findOne({ where: { id: user_id } });
+    if (!user) {
+      res.status(400).json({ success: false, message: "User not found" });
+      return;
+    }
+
     if (event_id != null) {
       const event = await Event.findOne({
         where: { event_id: event_id },
@@ -112,7 +125,12 @@ export const getEvents = async (
     }
 
     const events = await Event.findAll({
-      where: filter_event,
+      where: {
+        ...filter_event,
+        event_id: {
+          [Op.notIn]: [...user.likes, ...reservedIds],
+        },
+      },
       limit: 10,
     });
 
@@ -196,3 +214,43 @@ export const deleteEvent = async (
   }
 };
 
+export const suggestAnotherEvent = async (
+  _req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const { event_id } = _req.params;
+    if (!event_id) {
+      res.status(400).json({
+        success: false,
+        message: "Please provide an event_id to suggest another event",
+      });
+      return;
+    }
+    const nowTime = new Date().toTimeString().split(" ")[0];
+    const suggestedEvent = await Event.findOne({
+      where: sequelize.where(
+        sequelize.cast(sequelize.json("time[0]"), "time"),
+        {
+          [Op.gt]: nowTime,
+        }
+      ),
+      attributes: [
+        "event_id",
+        "title",
+        "category",
+        "time",
+        "date",
+        "location",
+        "image_urls",
+      ],
+      order: [[sequelize.cast(sequelize.json("time[0]"), "time"), "ASC"]],
+    });
+    res.status(200).json({ success: true, event: suggestedEvent });
+  } catch (error) {
+    console.error("Error suggesting another event:", error);
+    res
+      .status(500)
+      .json({ success: false, message: "Failed to suggest another event" });
+  }
+};

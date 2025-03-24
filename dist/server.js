@@ -12,7 +12,12 @@ const router_1 = __importDefault(require("./router/router"));
 const db_connect_1 = require("./db/db_connect");
 const app = (0, express_1.default)();
 const PORT = process.env.PORT || 3000;
-app.use((0, cors_1.default)());
+app.use((0, cors_1.default)({
+    origin: ["http://localhost:3000", "http://localhost:3001"],
+    optionsSuccessStatus: 200,
+    credentials: true,
+    allowedHeaders: ["Content-Type", "Authorization", "Accept", "cache-control"],
+}));
 app.use(body_parser_1.default.json());
 app.use(body_parser_1.default.urlencoded({ extended: true }));
 app.use("/api", router_1.default);

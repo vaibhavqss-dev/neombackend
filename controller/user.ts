@@ -48,6 +48,9 @@ export const updateProfile = async (
 
 import { getSignedUrl } from "../services/get_signed_url";
 import { Vibometer } from "../db/db_config";
+import user from "../models/user";
+
+
 export const updateProfile_img = async (
   req: Request,
   res: Response
@@ -580,7 +583,9 @@ export const getRecommendation = async (
     }
 
     const reservedEvents = await ReservedEvent.findAll({
-      where: { user_id: userId },
+      where: {
+        user_id: userId,
+      },
       attributes: ["event_id"],
     });
     const reservedEventIds = reservedEvents.map((event) => event.event_id);
@@ -596,6 +601,7 @@ export const getRecommendation = async (
               ? {
                   event_id: {
                     [Op.notIn]: reservedEventIds,
+                    [Op.not]: user.likes,
                   },
                 }
               : {},
@@ -630,7 +636,19 @@ export const getTrendingActivity = async (
   res: Response
 ): Promise<void> => {
   try {
+    const { userId: user_id } = _req.user;
+    const user = await User.findByPk(user_id);
+    if (!user) {
+      res.status(404).json({ success: false, message: "User not found" });
+      return;
+    }
+
     const events = await TrendingActivity.findAll({
+      where: {
+        event_id: {
+          [Op.not]: user.likes,
+        },
+      },  
       limit: 5,
       include: [
         {
@@ -761,12 +779,10 @@ export const rescheduleEvent = async (
       where: { user_id, event_id },
     });
     if (!reservedEvent) {
-      res
-        .status(404)
-        .json({
-          success: false,
-          message: "Event not found in reserved events",
-        });
+      res.status(404).json({
+        success: false,
+        message: "Event not found in reserved events",
+      });
       return;
     }
 

@@ -44,4 +44,5 @@ router
     .patch(events_1.updateEvent)
     .delete(events_1.deleteEvent);
 router.route("/events/trending").get(user_1.getTrendingActivity);
+router.route("/event/suggest_event/:event_id").get(events_1.suggestAnotherEvent);
 exports.default = router;

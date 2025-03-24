@@ -26,7 +26,7 @@ export const events = [
   {
     title: "Desert Drone Race",
     category: "technology",
-    date: ["Sat May 03 2025"],
+    date: ["Sat May 03 2025", "Sat May 04 2025", "Sat May 05 2025"],
     time: ["14:00:00", "17:00:00", "18:00:00"],
     location: "Neom City, Saudi Arabia",
     description: "High-speed drone racing over Neom's desert dunes.",

@@ -21,7 +21,7 @@ const notification = (req, res) => {
         });
         sendNotification(res, {
             type: "connection",
-            message: "Connection established",
+            message: "Connection Successfully Established",
             clientId,
         });
     }
@@ -66,13 +66,15 @@ const sendNotificationToClient = (user_id, data) => {
     return false;
 };
 exports.sendNotificationToClient = sendNotificationToClient;
+let i = 0;
 setInterval(() => {
     (0, exports.sendNotificationToClient)("1", {
         type: "notification",
-        message: "Hello from server",
+        message: `Event 2 could not be hold as mentioned, would you like to reschedule?`,
         msgid: 1,
         event_id: 2,
         event_name: "Event 2",
     });
     console.log("Sent notification to client 1");
-}, 5000);
+    i++;
+}, 10000);

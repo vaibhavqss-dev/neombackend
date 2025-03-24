@@ -61,6 +61,7 @@ import {
   deleteEvent,
   getEvents,
   postEvent,
+  suggestAnotherEvent,
   updateEvent,
 } from "../controller/events";
 router
@@ -71,4 +72,5 @@ router
   .delete(deleteEvent);
 
 router.route("/events/trending").get(getTrendingActivity);
+router.route("/event/suggest_event/:event_id").get(suggestAnotherEvent);
 export default router;

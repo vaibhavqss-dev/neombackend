@@ -19,7 +19,7 @@ export const loginUser = async (req: Request, res: Response): Promise<void> => {
     }
 
     const token = jwt.sign(
-      { userId: user.id, username: user.username },
+      { userId: user.id, username: user.username, name: user.fullname },
       process.env.JWT_SECRET || "default_secret_key",
       { expiresIn: "30h" }
     );
@@ -30,6 +30,7 @@ export const loginUser = async (req: Request, res: Response): Promise<void> => {
       token,
       username: user.username,
       user_id: user.id,
+      fullname: user.fullname,
     });
   } catch (error) {
     console.error("Error during login:", error);

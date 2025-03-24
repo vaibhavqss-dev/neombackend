@@ -9,7 +9,14 @@ import { testConnection } from "./db/db_connect";
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-app.use(cors());
+app.use(
+  cors({
+    origin: ["http://localhost:3000", "http://localhost:3001"],
+    optionsSuccessStatus: 200,
+    credentials: true,
+    allowedHeaders: ["Content-Type", "Authorization", "Accept", "cache-control"],
+  })
+);
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use("/api", router);

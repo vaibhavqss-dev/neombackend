@@ -22,6 +22,13 @@ exports.default = (sequelize) => {
                 len: [6, 100],
             },
         },
+        fullname: {
+            type: sequelize_1.DataTypes.STRING,
+            allowNull: true,
+            validate: {
+                notEmpty: true,
+            },
+        },
     }, {
         timestamps: true,
         hooks: {

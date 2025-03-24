@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteEvent = exports.updateEvent = exports.getEvents = exports.postEvent = void 0;
+exports.suggestAnotherEvent = exports.deleteEvent = exports.updateEvent = exports.getEvents = exports.postEvent = void 0;
 const db_connect_1 = require("../db/db_connect");
 const utility_1 = require("./utility");
 const sequelize_1 = require("sequelize");
@@ -55,6 +55,12 @@ const getEvents = async (_req, res) => {
         if (event_id) {
             filter_event.id = event_id;
         }
+        const { userId: user_id } = _req.user;
+        const user = await db_connect_1.User.findOne({ where: { id: user_id } });
+        if (!user) {
+            res.status(400).json({ success: false, message: "User not found" });
+            return;
+        }
         if (event_id != null) {
             const event = await db_connect_1.Event.findOne({
                 where: { event_id: event_id },
@@ -87,7 +93,12 @@ const getEvents = async (_req, res) => {
             };
         }
         const events = await db_connect_1.Event.findAll({
-            where: filter_event,
+            where: {
+                ...filter_event,
+                event_id: {
+                    [sequelize_1.Op.notIn]: [...user.likes, ...reservedIds],
+                },
+            },
             limit: 10,
         });
         res.status(200).json({ success: true, data: events, isFiltered: true });
@@ -161,3 +172,39 @@ const deleteEvent = async (_req, res) => {
     }
 };
 exports.deleteEvent = deleteEvent;
+const suggestAnotherEvent = async (_req, res) => {
+    try {
+        const { event_id } = _req.params;
+        if (!event_id) {
+            res.status(400).json({
+                success: false,
+                message: "Please provide an event_id to suggest another event",
+            });
+            return;
+        }
+        const nowTime = new Date().toTimeString().split(" ")[0];
+        const suggestedEvent = await db_connect_1.Event.findOne({
+            where: db_connect_1.sequelize.where(db_connect_1.sequelize.cast(db_connect_1.sequelize.json("time[0]"), "time"), {
+                [sequelize_1.Op.gt]: nowTime,
+            }),
+            attributes: [
+                "event_id",
+                "title",
+                "category",
+                "time",
+                "date",
+                "location",
+                "image_urls",
+            ],
+            order: [[db_connect_1.sequelize.cast(db_connect_1.sequelize.json("time[0]"), "time"), "ASC"]],
+        });
+        res.status(200).json({ success: true, event: suggestedEvent });
+    }
+    catch (error) {
+        console.error("Error suggesting another event:", error);
+        res
+            .status(500)
+            .json({ success: false, message: "Failed to suggest another event" });
+    }
+};
+exports.suggestAnotherEvent = suggestAnotherEvent;

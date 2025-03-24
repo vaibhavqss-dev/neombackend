@@ -43,6 +43,13 @@ export default (sequelize: Sequelize) => {
           len: [6, 100],
         },
       },
+      fullname: {
+        type: DataTypes.STRING,
+        allowNull: true,
+        validate: {
+          notEmpty: true,
+        },
+      },
     },
     {
       timestamps: true,

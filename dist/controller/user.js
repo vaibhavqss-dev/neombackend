@@ -492,7 +492,9 @@ const getRecommendation = async (req, res) => {
             return;
         }
         const reservedEvents = await db_connect_1.ReservedEvent.findAll({
-            where: { user_id: userId },
+            where: {
+                user_id: userId,
+            },
             attributes: ["event_id"],
         });
         const reservedEventIds = reservedEvents.map((event) => event.event_id);
@@ -506,6 +508,7 @@ const getRecommendation = async (req, res) => {
                         ? {
                             event_id: {
                                 [sequelize_1.Op.notIn]: reservedEventIds,
+                                [sequelize_1.Op.not]: user.likes,
                             },
                         }
                         : {},
@@ -535,7 +538,18 @@ const getRecommendation = async (req, res) => {
 exports.getRecommendation = getRecommendation;
 const getTrendingActivity = async (_req, res) => {
     try {
+        const { userId: user_id } = _req.user;
+        const user = await db_connect_1.User.findByPk(user_id);
+        if (!user) {
+            res.status(404).json({ success: false, message: "User not found" });
+            return;
+        }
         const events = await db_connect_1.TrendingActivity.findAll({
+            where: {
+                event_id: {
+                    [sequelize_1.Op.not]: user.likes,
+                },
+            },
             limit: 5,
             include: [
                 {
@@ -658,9 +672,7 @@ const rescheduleEvent = async (req, res) => {
             where: { user_id, event_id },
         });
         if (!reservedEvent) {
-            res
-                .status(404)
-                .json({
+            res.status(404).json({
                 success: false,
                 message: "Event not found in reserved events",
             });
