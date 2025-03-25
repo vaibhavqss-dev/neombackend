@@ -25,8 +25,8 @@ export const postEvent = async (
       subtext,
       image_urls,
       overall_rating,
-      min_temprature,
-      max_temprature,
+      min_temperature,
+      max_temperature,
       avg_rating,
       no_reviews,
     } = _req.body;
@@ -35,7 +35,7 @@ export const postEvent = async (
     const newEvent = await Event.create({
       title,
       category,
-      time: formattedTime,
+      time: [formattedTime],
       date,
       location,
       description,
@@ -44,8 +44,8 @@ export const postEvent = async (
       subtext,
       image_urls,
       overall_rating,
-      min_temprature,
-      max_temprature,
+      min_temperature,
+      max_temperature,
       avg_rating,
       no_reviews,
     });
@@ -83,7 +83,7 @@ export const getEvents = async (
     }
 
     const { userId: user_id } = _req.user;
-    const user = await User.findOne({ where: { id: user_id } });
+    const user = await User.findOne({ where: { user_id: user_id } });
     if (!user) {
       res.status(400).json({ success: false, message: "User not found" });
       return;
@@ -91,7 +91,7 @@ export const getEvents = async (
 
     if (event_id != null) {
       const event = await Event.findOne({
-        where: { event_id: event_id },
+        where: { event_id: parseInt(event_id as string) },
         include: [
           {
             model: Reviews,
@@ -183,7 +183,7 @@ export const updateEvent = async (
     }
 
     const updatedEvent = await Event.update(update, {
-      where: { id: event_id },
+      where: { event_id },
     });
     res.status(200).json({ success: true, messsage: "Event updated" });
   } catch (error) {
@@ -206,7 +206,7 @@ export const deleteEvent = async (
       });
       return;
     }
-    await Event.destroy({ where: { id: event_id } });
+    await Event.destroy({ where: { event_id: parseInt(event_id as string) } });
     res.status(200).json({ success: true, message: "Event deleted" });
   } catch (error) {
     console.error("Error deleting event:", error);

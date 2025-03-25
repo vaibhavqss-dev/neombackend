@@ -1,22 +1,8 @@
-import { Sequelize, DataTypes } from "sequelize";
-import { notification } from "../controller/notification";
+import { Model, DataTypes, Sequelize } from "sequelize";
+import { Setting } from "../types/setting";
 
-interface SettingAttributes {
-  id: number;
-  userid: number;
-  personalandAccount: string;
-  operator: string;
-  managedata: string;
-  password_security: string;
-  notification_email: string;
-  notification_sms: string;
-  notification_personalized: string;
-  language: string;
-}
-
-export default (sequelize: Sequelize) => {
-  const setting = sequelize.define<any>(
-    "Setting",
+export default (sequelize: Sequelize): typeof Setting => {
+  Setting.init(
     {
       user_id: {
         type: DataTypes.INTEGER,
@@ -65,9 +51,10 @@ export default (sequelize: Sequelize) => {
       },
     },
     {
+      sequelize,
       tableName: "settings",
       timestamps: true,
     }
   );
-  return setting;
+  return Setting;
 };

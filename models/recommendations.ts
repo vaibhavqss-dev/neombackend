@@ -1,8 +1,31 @@
-import { Sequelize, DataTypes } from "sequelize";
+import { Sequelize, DataTypes, Optional, Model } from "sequelize";
 
-export default (sequelize: Sequelize) => {
-  const recommendation = sequelize.define<any>(
-    "recommendation",
+interface RecommendationAttributes {
+  id: number;
+  user_id: number;
+  event_type: string;
+  event_id: number;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
+interface RecommendationCreationAttributes
+  extends Optional<RecommendationAttributes, "id"> {}
+
+class Recommendation extends Model<
+  RecommendationAttributes,
+  RecommendationCreationAttributes
+> {
+  declare id: number;
+  declare user_id: number;
+  declare event_type: string;
+  declare event_id: number;
+  declare readonly createdAt: Date;
+  declare readonly updatedAt: Date;
+}
+
+export default (sequelize: Sequelize): typeof Recommendation => {
+  Recommendation.init(
     {
       id: {
         type: DataTypes.INTEGER,
@@ -23,8 +46,9 @@ export default (sequelize: Sequelize) => {
       },
     },
     {
+      sequelize,
       timestamps: true,
     }
   );
-  return recommendation;
+  return Recommendation;
 };

@@ -1,8 +1,10 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const sequelize_1 = require("sequelize");
+class Vibometer extends sequelize_1.Model {
+}
 exports.default = (sequelize) => {
-    const vibometer = sequelize.define("vibometer", {
+    Vibometer.init({
         id: {
             type: sequelize_1.DataTypes.INTEGER,
             autoIncrement: true,
@@ -21,7 +23,9 @@ exports.default = (sequelize) => {
             allowNull: false,
         },
     }, {
+        sequelize,
+        modelName: "vibometers",
         timestamps: true,
     });
-    return vibometer;
+    return Vibometer;
 };

@@ -20,7 +20,7 @@ import {
   likeEvent,
   addInterested,
   reserveEvent,
-  fetchVisitedEvents,
+  getVisited,
   addReviews,
   getRecommendation,
   getTrendingActivity,
@@ -32,6 +32,9 @@ import {
   UnlikeEvent,
   vibometer,
   rescheduleEvent,
+  utility,
+  updateLatituteLongitude,
+  getLatituteLongitude,
 } from "../controller/user";
 
 router
@@ -46,13 +49,17 @@ router
   .delete(UnlikeEvent);
 router.route("/user/event/interested").post(addInterested);
 router.route("/user/reserveevent").post(reserveEvent).get(getReservedEvents);
-router.route("/user/visitedevent").get(fetchVisitedEvents);
+router.route("/user/visitedevent").get(getVisited);
 router.route("/user/review").post(addReviews).get(getReviews);
 router.route("/user/recommendation").get(getRecommendation);
 router.route("/user/settings").patch(changeSettings).get(getUserSettings);
 router.route("/user/profile/uploadimg").post(updateProfile_img);
 router.route("/user/vibometer").post(vibometer);
 router.route("/user/event/reschedule").patch(rescheduleEvent);
+router
+  .route("/user/location")
+  .patch(updateLatituteLongitude)
+  .get(getLatituteLongitude);
 
 import { notification } from "../controller/notification";
 router.route("/user/notification").get(notification);
@@ -73,4 +80,6 @@ router
 
 router.route("/events/trending").get(getTrendingActivity);
 router.route("/event/suggest_event/:event_id").get(suggestAnotherEvent);
+
+router.route("/utility").post(utility);
 export default router;

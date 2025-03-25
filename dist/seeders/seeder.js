@@ -21,11 +21,11 @@ const seedsignup = async () => {
                     },
                 });
                 const [signup, created] = await db_connect_1.Auth.findOrCreate({
-                    where: { user_id: user.id },
+                    where: { user_id: user.user_id },
                     defaults: signupData,
                 });
                 if (created) {
-                    console.log(`signup created with ID: ${signup.id}`);
+                    console.log(`signup created with ID: ${signup.user_id}`);
                 }
                 else {
                     console.log(`signup '${signupData.username}' already exists.`);
@@ -52,7 +52,7 @@ async function seedEvents() {
                     defaults: eventData,
                 });
                 if (created) {
-                    console.log(`Event created with ID: ${event.id}`);
+                    console.log(`Event created with ID: ${event.event_id}`);
                 }
                 else {
                     console.log(`Event '${eventData.title}' already exists.`);

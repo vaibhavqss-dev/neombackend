@@ -43,11 +43,11 @@ Setting.belongsTo(User, {
   constraints: true,
 });
 
-// Hook to create default settings when a user is created
-User.addHook("afterCreate", async (user: any, options) => {
+import { User as usertype } from "../models/user";
+User.addHook("afterCreate", async (user: usertype, options) => {
   await Setting.create(
     {
-      user_id: user.id,
+      user_id: user.user_id,
     },
     {
       transaction: options.transaction,
@@ -138,7 +138,6 @@ Vibometer.belongsTo(Event, {
 //   type: 'unique',
 //   name: 'unique_user_event_vibometer'
 // });
-
 
 // sequelize.addConstraint("vibometers", {
 //   fields: ["user_id", "event_id"],

@@ -6,12 +6,12 @@ const utility_1 = require("./utility");
 const sequelize_1 = require("sequelize");
 const postEvent = async (_req, res) => {
     try {
-        const { title, category, date, location, description, latitude, longitude, subtext, image_urls, overall_rating, min_temprature, max_temprature, avg_rating, no_reviews, } = _req.body;
+        const { title, category, date, location, description, latitude, longitude, subtext, image_urls, overall_rating, min_temperature, max_temperature, avg_rating, no_reviews, } = _req.body;
         const formattedTime = (0, utility_1.getCurrentTime)();
         const newEvent = await db_connect_1.Event.create({
             title,
             category,
-            time: formattedTime,
+            time: [formattedTime],
             date,
             location,
             description,
@@ -20,8 +20,8 @@ const postEvent = async (_req, res) => {
             subtext,
             image_urls,
             overall_rating,
-            min_temprature,
-            max_temprature,
+            min_temperature,
+            max_temperature,
             avg_rating,
             no_reviews,
         });
@@ -56,14 +56,14 @@ const getEvents = async (_req, res) => {
             filter_event.id = event_id;
         }
         const { userId: user_id } = _req.user;
-        const user = await db_connect_1.User.findOne({ where: { id: user_id } });
+        const user = await db_connect_1.User.findOne({ where: { user_id: user_id } });
         if (!user) {
             res.status(400).json({ success: false, message: "User not found" });
             return;
         }
         if (event_id != null) {
             const event = await db_connect_1.Event.findOne({
-                where: { event_id: event_id },
+                where: { event_id: parseInt(event_id) },
                 include: [
                     {
                         model: db_connect_1.Reviews,
@@ -143,7 +143,7 @@ const updateEvent = async (_req, res) => {
             return;
         }
         const updatedEvent = await db_connect_1.Event.update(update, {
-            where: { id: event_id },
+            where: { event_id },
         });
         res.status(200).json({ success: true, messsage: "Event updated" });
     }
@@ -163,7 +163,7 @@ const deleteEvent = async (_req, res) => {
             });
             return;
         }
-        await db_connect_1.Event.destroy({ where: { id: event_id } });
+        await db_connect_1.Event.destroy({ where: { event_id: parseInt(event_id) } });
         res.status(200).json({ success: true, message: "Event deleted" });
     }
     catch (error) {

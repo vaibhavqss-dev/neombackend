@@ -35,12 +35,12 @@ export const seedsignup = async () => {
           },
         });
         const [signup, created] = await Auth.findOrCreate({
-          where: { user_id: user.id },
+          where: { user_id: user.user_id },
           defaults: signupData,
         });
 
         if (created) {
-          console.log(`signup created with ID: ${signup.id}`);
+          console.log(`signup created with ID: ${signup.user_id}`);
         } else {
           console.log(`signup '${signupData.username}' already exists.`);
         }
@@ -57,7 +57,7 @@ export async function seedEvents() {
   console.log("Seeding events data...");
 
   try {
-    for (const eventData of events) {
+    for (const eventData of events ) {
       console.log(`Creating event '${eventData.title}'...`);
       try {
         const [event, created] = await Event.findOrCreate({
@@ -66,7 +66,7 @@ export async function seedEvents() {
         });
 
         if (created) {
-          console.log(`Event created with ID: ${event.id}`);
+          console.log(`Event created with ID: ${event.event_id}`);
         } else {
           console.log(`Event '${eventData.title}' already exists.`);
         }

@@ -5,8 +5,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const sequelize_1 = require("sequelize");
 const bcrypt_1 = __importDefault(require("bcrypt"));
+const Auth_1 = require("../types/Auth");
 exports.default = (sequelize) => {
-    const Auth = sequelize.define("Auth", {
+    Auth_1.Auth.init({
+        user_id: {
+            type: sequelize_1.DataTypes.INTEGER,
+            autoIncrement: true,
+            primaryKey: true,
+        },
         username: {
             type: sequelize_1.DataTypes.STRING,
             allowNull: false,
@@ -30,6 +36,8 @@ exports.default = (sequelize) => {
             },
         },
     }, {
+        sequelize,
+        modelName: "Auth",
         timestamps: true,
         hooks: {
             beforeCreate: async (auth) => {
@@ -46,8 +54,5 @@ exports.default = (sequelize) => {
             },
         },
     });
-    Auth.prototype.comparePassword = async function (plainPassword) {
-        return bcrypt_1.default.compare(plainPassword, this.password);
-    };
-    return Auth;
+    return Auth_1.Auth;
 };

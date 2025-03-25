@@ -1,8 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const sequelize_1 = require("sequelize");
+const setting_1 = require("../types/setting");
 exports.default = (sequelize) => {
-    const setting = sequelize.define("Setting", {
+    setting_1.Setting.init({
         user_id: {
             type: sequelize_1.DataTypes.INTEGER,
             autoIncrement: true,
@@ -49,8 +50,9 @@ exports.default = (sequelize) => {
             allowNull: false,
         },
     }, {
+        sequelize,
         tableName: "settings",
         timestamps: true,
     });
-    return setting;
+    return setting_1.Setting;
 };

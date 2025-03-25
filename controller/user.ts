@@ -50,7 +50,6 @@ import { getSignedUrl } from "../services/get_signed_url";
 import { Vibometer } from "../db/db_config";
 import user from "../models/user";
 
-
 export const updateProfile_img = async (
   req: Request,
   res: Response
@@ -234,7 +233,7 @@ export const likeEvent = async (req: Request, res: Response): Promise<void> => {
     console.log(req.user);
     const { userId: user_id } = req.user;
     const { event_id } = req.body;
-    const user = await User.findOne({ where: { id: user_id } });
+    const user = await User.findOne({ where: { user_id } });
     if (!user) {
       res.status(404).json({ success: false, message: "User not found" });
       return;
@@ -262,7 +261,7 @@ export const UnlikeEvent = async (
   try {
     const { userId: user_id } = req.user;
     const { event_id } = req.body;
-    const user = await User.findOne({ where: { id: user_id } });
+    const user = await User.findOne({ where: { user_id } });
     if (!user) {
       res.status(404).json({ success: false, message: "User not found" });
       return;
@@ -293,7 +292,7 @@ export const getLikeEvent = async (
     const { userId: user_id } = req.user;
 
     let likes = await User.findOne({
-      where: { id: user_id },
+      where: { user_id: user_id },
       attributes: ["likes"],
     });
 
@@ -404,7 +403,7 @@ export const reserveEvent = async (
 };
 
 // visitedevents
-export const fetchVisitedEvents = async (
+export const getVisited = async (
   req: Request,
   res: Response
 ): Promise<void> => {
@@ -429,7 +428,7 @@ export const fetchVisitedEvents = async (
         },
         {
           model: Reviews,
-          // required: true,
+          required: false,
           where: {
             user_id: user_id,
           },
@@ -484,7 +483,7 @@ export const addReviews = async (
         user_id,
         event_id,
         comment,
-        date: new Date(),
+        date: new Date().toDateString(),
         time: new Date().toLocaleTimeString(),
         avg_rating: rating,
         quality_of_event,
@@ -532,12 +531,18 @@ export const getReviews = async (
       query.user_id = user_id;
     }
 
-    const reviews = await Reviews.findAll({
-      where: query,
+    const reviews = await ReservedEvent.findAll({
+      where: {
+        ...query,
+        date_to: {
+          [Op.lt]: new Date(),
+        },
+      },
+
       include: [
         {
           model: Event,
-          required: false,
+          required: true,
           attributes: [
             "event_id",
             "title",
@@ -547,11 +552,21 @@ export const getReviews = async (
             "description",
             "image_urls",
             "subtext",
+            "avg_rating",
+            "no_reviews",
+          ],
+          include: [
+            {
+              model: Reviews,
+              required: false,
+              where: {
+                user_id: user_id,
+              },
+            },
           ],
         },
       ],
       limit: 5,
-      attributes: ["time", "date", "comment", "avg_rating"],
     });
     if (!reviews) {
       res.status(404).json({ success: false, message: "No reviews found" });
@@ -560,7 +575,7 @@ export const getReviews = async (
     res.status(200).json({
       success: true,
       message: "Reviews retrieved successfully",
-      reviews: reviews,
+      event: reviews,
     });
   } catch (error) {
     console.error("Error fetching reviews:", error);
@@ -609,15 +624,6 @@ export const getRecommendation = async (
       ],
     });
 
-    if (!recommendation || recommendation.length === 0) {
-      res.status(404).json({
-        success: false,
-        message:
-          "Please add your interest in setting to let us find some suggestion for you",
-      });
-      return;
-    }
-
     res.status(200).json({
       success: true,
       message: "Recommendation retrieved successfully",
@@ -648,7 +654,7 @@ export const getTrendingActivity = async (
         event_id: {
           [Op.not]: user.likes,
         },
-      },  
+      },
       limit: 5,
       include: [
         {
@@ -796,5 +802,82 @@ export const rescheduleEvent = async (
     res
       .status(500)
       .json({ success: false, message: "Failed to reschedule event" });
+  }
+};
+
+export const utility = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { userId: user_id } = req.user;
+    const { event_id, utility } = req.body;
+    const user = await User.findByPk(user_id);
+    if (!user) {
+      res.status(404).json({ success: false, message: "User not found" });
+      return;
+    }
+    let isUtility = await Event.findOne({
+      where: { event_id },
+    });
+    isUtility?.increaseNoReviews(event_id);
+    res.status(200).json({
+      success: true,
+      message: "Utility Added successfully",
+    });
+  } catch (error) {
+    console.error("Error adding utility:", error);
+    res.status(500).json({ success: false, message: "Failed to add utility" });
+  }
+};
+
+// update latitude and longitude
+export const updateLatituteLongitude = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const { userId: user_id } = req.user;
+    const { curr_latitute, curr_longitude } = req.body;
+    const user = await User.findByPk(user_id);
+    if (!user) {
+      res.status(404).json({ success: false, message: "User not found" });
+      return;
+    }
+    await user.update({ curr_latitute, curr_longitude });
+    res.status(200).json({
+      success: true,
+      message: "Latitude and Longitude updated successfully",
+    });
+  } catch (error) {
+    console.error("Error updating latitude and longitude:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to update latitude and longitude",
+    });
+  }
+};
+
+// get latitude and Longitude
+export const getLatituteLongitude = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const { userId: user_id } = req.user;
+    const user = await User.findByPk(user_id);
+    if (!user) {
+      res.status(404).json({ success: false, message: "User not found" });
+      return;
+    }
+    res.status(200).json({
+      success: true,
+      message: "Latitude and Longitude retrieved successfully",
+      curr_latitute: user.curr_latitute,
+      curr_longitude: user.curr_longitude,
+    });
+  } catch (error) {
+    console.error("Error fetching latitude and longitude:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to retrieve latitude and longitude",
+    });
   }
 };

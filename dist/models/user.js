@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.User = void 0;
 const sequelize_1 = require("sequelize");
 class User extends sequelize_1.Model {
     async addLikedEvent(eventId) {
@@ -59,8 +60,8 @@ class User extends sequelize_1.Model {
             return false;
         }
     }
-    get id() {
-        return this.getDataValue("id");
+    get user_id() {
+        return this.getDataValue("user_id");
     }
     get name() {
         return this.getDataValue("name");
@@ -80,10 +81,17 @@ class User extends sequelize_1.Model {
     get profile_img() {
         return this.getDataValue("profile_img");
     }
+    get curr_latitute() {
+        return this.getDataValue("curr_latitute");
+    }
+    get curr_longitude() {
+        return this.getDataValue("curr_longitude");
+    }
 }
+exports.User = User;
 exports.default = (sequelize) => {
     User.init({
-        id: {
+        user_id: {
             type: sequelize_1.DataTypes.INTEGER,
             autoIncrement: true,
             primaryKey: true,
@@ -125,6 +133,16 @@ exports.default = (sequelize) => {
             type: sequelize_1.DataTypes.DATE,
             allowNull: true,
             defaultValue: null,
+        },
+        curr_latitute: {
+            type: sequelize_1.DataTypes.STRING,
+            allowNull: true,
+            defaultValue: "77°23'23.5",
+        },
+        curr_longitude: {
+            type: sequelize_1.DataTypes.STRING,
+            allowNull: true,
+            defaultValue: "28°32'06.6",
         },
     }, {
         tableName: "users",

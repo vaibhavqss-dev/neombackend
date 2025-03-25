@@ -1,8 +1,10 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const sequelize_1 = require("sequelize");
+class Recommendation extends sequelize_1.Model {
+}
 exports.default = (sequelize) => {
-    const recommendation = sequelize.define("recommendation", {
+    Recommendation.init({
         id: {
             type: sequelize_1.DataTypes.INTEGER,
             autoIncrement: true,
@@ -21,7 +23,8 @@ exports.default = (sequelize) => {
             allowNull: false,
         },
     }, {
+        sequelize,
         timestamps: true,
     });
-    return recommendation;
+    return Recommendation;
 };

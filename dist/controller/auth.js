@@ -20,13 +20,13 @@ const loginUser = async (req, res) => {
             res.status(401).json({ error: "Invalid credentials" });
             return;
         }
-        const token = jsonwebtoken_1.default.sign({ userId: user.id, username: user.username, name: user.fullname }, process.env.JWT_SECRET || "default_secret_key", { expiresIn: "30h" });
+        const token = jsonwebtoken_1.default.sign({ userId: user.user_id, username: user.username, name: user.fullname }, process.env.JWT_SECRET || "default_secret_key", { expiresIn: "30h" });
         res.status(200).json({
             success: true,
             message: "Login successful",
             token,
             username: user.username,
-            user_id: user.id,
+            user_id: user.user_id,
             fullname: user.fullname,
         });
     }
@@ -59,9 +59,10 @@ const userSignup = async (req, res) => {
                 profile_img: "https://oplsgvveavucoyuifbte.supabase.co/storage/v1/object/public/neom-images/assests/profilePic.png",
             }, { transaction: t });
             const user = await db_connect_1.Auth.create({
+                fullname: name,
                 username,
                 password,
-                user_id: Users.id,
+                user_id: Users.user_id,
             }, { transaction: t });
             return { Users, user };
         });

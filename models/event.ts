@@ -1,20 +1,21 @@
-import { Sequelize, DataTypes } from "sequelize";
+import { DataTypes, Model, Sequelize } from "sequelize";
+import { Event } from "../types/Event";
 
-export default (sequelize: Sequelize) => {
-  const event = sequelize.define<any>(
-    "event",
+export default (sequelize: Sequelize): typeof Event => {
+  Event.init(
     {
       event_id: {
         type: DataTypes.INTEGER,
         autoIncrement: true,
         primaryKey: true,
       },
+
       title: {
         type: DataTypes.STRING,
         allowNull: false,
       },
       description: {
-        type: DataTypes.STRING,
+        type: DataTypes.TEXT,
         allowNull: false,
       },
       subtext: {
@@ -32,10 +33,14 @@ export default (sequelize: Sequelize) => {
         defaultValue: [],
       },
       latitude: {
-        type: DataTypes.STRING,
+        type: DataTypes.DECIMAL(10, 7), // More appropriate for coordinates
         allowNull: false,
       },
       longitude: {
+        type: DataTypes.DECIMAL(10, 7), // More appropriate for coordinates
+        allowNull: false,
+      },
+      location: {
         type: DataTypes.STRING,
         allowNull: false,
       },
@@ -43,35 +48,35 @@ export default (sequelize: Sequelize) => {
         type: DataTypes.STRING,
         allowNull: false,
       },
-      location: {
-        type: DataTypes.STRING,
-        allowNull: false,
-      },
+
       image_urls: {
         type: DataTypes.JSON,
         allowNull: false,
         defaultValue: [],
       },
+
       overall_rating: {
         type: DataTypes.INTEGER,
         allowNull: false,
       },
-      min_temprature: {
-        type: DataTypes.STRING,
-        allowNull: false,
-      },
-      max_temprature: {
-        type: DataTypes.STRING,
-        allowNull: false,
-      },
       avg_rating: {
-        type: DataTypes.STRING,
+        type: DataTypes.DECIMAL(3, 1),
         allowNull: false,
       },
       no_reviews: {
-        type: DataTypes.STRING,
+        type: DataTypes.INTEGER,
         allowNull: false,
       },
+
+      min_temperature: {
+        type: DataTypes.DECIMAL(5, 2),
+        allowNull: false,
+      },
+      max_temperature: {
+        type: DataTypes.DECIMAL(5, 2),
+        allowNull: false,
+      },
+
       operator_name: {
         type: DataTypes.STRING,
         allowNull: true,
@@ -82,8 +87,11 @@ export default (sequelize: Sequelize) => {
       },
     },
     {
+      sequelize,
+      modelName: "event",
       timestamps: true,
     }
   );
-  return event;
+
+  return Event;
 };

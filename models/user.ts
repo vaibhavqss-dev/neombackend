@@ -1,28 +1,26 @@
 import { Model, DataTypes, Optional, Sequelize } from "sequelize";
 
 interface UserAttributes {
-  id: number;
+  user_id: number;
   name: string;
   email: string;
   mobile_number: string;
-  profile_img: string; // Make profile_img optional with ?
+  profile_img: string;
   interests: string[];
   likes: string[];
   createdAt?: Date;
   updatedAt?: Date;
   dob?: Date;
+  curr_latitute: string;
+  curr_longitude: string;
 }
 
-interface UserCreationAttributes
-  extends Optional<UserAttributes, "id" | "likes" | "interests"> {}
+interface UserCreationAttributes extends Optional<UserAttributes, "user_id"> {}
 
-class User
+export class User
   extends Model<UserAttributes, UserCreationAttributes>
   implements UserAttributes
 {
-  // Remove explicit property declarations that shadow Sequelize attributes
-  // Sequelize will automatically generate getters and setters for these
-
   public async addLikedEvent(eventId: string): Promise<boolean> {
     try {
       if (!eventId) {
@@ -84,8 +82,8 @@ class User
   }
 
   // Type assertions for Sequelize-generated getters
-  public get id(): number {
-    return this.getDataValue("id");
+  public get user_id(): number {
+    return this.getDataValue("user_id");
   }
 
   public get name(): string {
@@ -111,6 +109,15 @@ class User
   public get profile_img(): string {
     return this.getDataValue("profile_img");
   }
+
+  public get curr_latitute(): string {
+    return this.getDataValue("curr_latitute");
+  }
+
+  public get curr_longitude(): string {
+    return this.getDataValue("curr_longitude");
+  }
+
   // public get createdAt(): Date {
   //   return this.getDataValue("createdAt");
   // }
@@ -122,7 +129,7 @@ class User
 export default (sequelize: Sequelize) => {
   User.init(
     {
-      id: {
+      user_id: {
         type: DataTypes.INTEGER,
         autoIncrement: true,
         primaryKey: true,
@@ -164,6 +171,16 @@ export default (sequelize: Sequelize) => {
         type: DataTypes.DATE,
         allowNull: true,
         defaultValue: null,
+      },
+      curr_latitute: {
+        type: DataTypes.STRING,
+        allowNull: true,
+        defaultValue: "77°23'23.5",
+      },
+      curr_longitude: {
+        type: DataTypes.STRING,
+        allowNull: true,
+        defaultValue: "28°32'06.6",
       },
     },
     {

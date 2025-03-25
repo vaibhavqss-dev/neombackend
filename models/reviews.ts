@@ -1,10 +1,40 @@
-import { fail } from "assert";
-import { Sequelize, DataTypes } from "sequelize";
-import { Hooks } from "sequelize/types/hooks";
+import { Sequelize, DataTypes, Optional, Model } from "sequelize";
 
-export default (sequelize: Sequelize) => {
-  const reviews = sequelize.define<any>(
-    "reviews",
+interface ReviewAttributes {
+  id?: number;
+  quality_of_event: number;
+  service_of_event: number;
+  facilites_of_event: number;
+  staffPoliteness: number;
+  operator_of_event: number;
+  user_id: number;
+  comment: string;
+  avg_rating: number;
+  date: String;
+  time: String;
+  event_id: number;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
+interface ReviewCreationAttributes extends Optional<ReviewAttributes, "id"> {}
+class Review extends Model<ReviewAttributes, ReviewCreationAttributes> {
+  declare id: number;
+  declare quality_of_event: number;
+  declare service_of_event: number;
+  declare facilites_of_event: number;
+  declare staffPoliteness: number;
+  declare operator_of_event: number;
+  declare user_id: number;
+  declare comment: string;
+  declare avg_rating: number;
+  declare date: String;
+  declare time: String;
+  declare event_id: number;
+}
+
+export default (sequelize: Sequelize): typeof Review => {
+  Review.init(
     {
       id: {
         type: DataTypes.INTEGER,
@@ -61,6 +91,8 @@ export default (sequelize: Sequelize) => {
       },
     },
     {
+      sequelize,
+      modelName: "reviews",
       timestamps: true,
       hooks: {
         beforeCreate: async (reviews: any) => {
@@ -76,5 +108,5 @@ export default (sequelize: Sequelize) => {
     }
   );
 
-  return reviews;
+  return Review;
 };

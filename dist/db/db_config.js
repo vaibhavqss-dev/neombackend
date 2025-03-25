@@ -57,7 +57,7 @@ Setting.belongsTo(User, {
 });
 User.addHook("afterCreate", async (user, options) => {
     await Setting.create({
-        user_id: user.id,
+        user_id: user.user_id,
     }, {
         transaction: options.transaction,
     });

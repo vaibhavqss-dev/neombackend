@@ -24,7 +24,7 @@ export default (sequelize: Sequelize) => {
         allowNull: false,
       },
       date_to: {
-        type: DataTypes.DATE,
+        type: DataTypes.DATE, 
         allowNull: false,
       },
       time: {

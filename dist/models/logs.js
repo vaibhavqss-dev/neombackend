@@ -1,8 +1,10 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const sequelize_1 = require("sequelize");
+class Log extends sequelize_1.Model {
+}
 exports.default = (sequelize) => {
-    const logs = sequelize.define("logs", {
+    Log.init({
         id: {
             type: sequelize_1.DataTypes.INTEGER,
             autoIncrement: true,
@@ -21,8 +23,9 @@ exports.default = (sequelize) => {
             allowNull: false,
         },
     }, {
+        sequelize,
         tableName: "logs",
         timestamps: true,
     });
-    return logs;
+    return Log;
 };

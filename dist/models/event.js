@@ -1,8 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const sequelize_1 = require("sequelize");
+const Event_1 = require("../types/Event");
 exports.default = (sequelize) => {
-    const event = sequelize.define("event", {
+    Event_1.Event.init({
         event_id: {
             type: sequelize_1.DataTypes.INTEGER,
             autoIncrement: true,
@@ -13,7 +14,7 @@ exports.default = (sequelize) => {
             allowNull: false,
         },
         description: {
-            type: sequelize_1.DataTypes.STRING,
+            type: sequelize_1.DataTypes.TEXT,
             allowNull: false,
         },
         subtext: {
@@ -31,18 +32,18 @@ exports.default = (sequelize) => {
             defaultValue: [],
         },
         latitude: {
-            type: sequelize_1.DataTypes.STRING,
+            type: sequelize_1.DataTypes.DECIMAL(10, 7),
             allowNull: false,
         },
         longitude: {
+            type: sequelize_1.DataTypes.DECIMAL(10, 7),
+            allowNull: false,
+        },
+        location: {
             type: sequelize_1.DataTypes.STRING,
             allowNull: false,
         },
         category: {
-            type: sequelize_1.DataTypes.STRING,
-            allowNull: false,
-        },
-        location: {
             type: sequelize_1.DataTypes.STRING,
             allowNull: false,
         },
@@ -55,20 +56,20 @@ exports.default = (sequelize) => {
             type: sequelize_1.DataTypes.INTEGER,
             allowNull: false,
         },
-        min_temprature: {
-            type: sequelize_1.DataTypes.STRING,
-            allowNull: false,
-        },
-        max_temprature: {
-            type: sequelize_1.DataTypes.STRING,
-            allowNull: false,
-        },
         avg_rating: {
-            type: sequelize_1.DataTypes.STRING,
+            type: sequelize_1.DataTypes.DECIMAL(3, 1),
             allowNull: false,
         },
         no_reviews: {
-            type: sequelize_1.DataTypes.STRING,
+            type: sequelize_1.DataTypes.INTEGER,
+            allowNull: false,
+        },
+        min_temperature: {
+            type: sequelize_1.DataTypes.DECIMAL(5, 2),
+            allowNull: false,
+        },
+        max_temperature: {
+            type: sequelize_1.DataTypes.DECIMAL(5, 2),
             allowNull: false,
         },
         operator_name: {
@@ -80,7 +81,9 @@ exports.default = (sequelize) => {
             allowNull: true,
         },
     }, {
+        sequelize,
+        modelName: "event",
         timestamps: true,
     });
-    return event;
+    return Event_1.Event;
 };

@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.rescheduleEvent = exports.vibometer = exports.getReservedEvents = exports.getTrendingActivity = exports.getRecommendation = exports.getReviews = exports.addReviews = exports.fetchVisitedEvents = exports.reserveEvent = exports.addInterested = exports.getLikeEvent = exports.UnlikeEvent = exports.likeEvent = exports.changeSettings = exports.getUserSettings = exports.deleteUserProfile = exports.getUserProfile = exports.updateProfile_img = exports.updateProfile = void 0;
+exports.getLatituteLongitude = exports.updateLatituteLongitude = exports.utility = exports.rescheduleEvent = exports.vibometer = exports.getReservedEvents = exports.getTrendingActivity = exports.getRecommendation = exports.getReviews = exports.addReviews = exports.getVisited = exports.reserveEvent = exports.addInterested = exports.getLikeEvent = exports.UnlikeEvent = exports.likeEvent = exports.changeSettings = exports.getUserSettings = exports.deleteUserProfile = exports.getUserProfile = exports.updateProfile_img = exports.updateProfile = void 0;
 const db_connect_1 = require("../db/db_connect");
 const sequelize_1 = require("sequelize");
 const updateProfile = async (req, res) => {
@@ -194,7 +194,7 @@ const likeEvent = async (req, res) => {
         console.log(req.user);
         const { userId: user_id } = req.user;
         const { event_id } = req.body;
-        const user = await db_connect_1.User.findOne({ where: { id: user_id } });
+        const user = await db_connect_1.User.findOne({ where: { user_id } });
         if (!user) {
             res.status(404).json({ success: false, message: "User not found" });
             return;
@@ -219,7 +219,7 @@ const UnlikeEvent = async (req, res) => {
     try {
         const { userId: user_id } = req.user;
         const { event_id } = req.body;
-        const user = await db_connect_1.User.findOne({ where: { id: user_id } });
+        const user = await db_connect_1.User.findOne({ where: { user_id } });
         if (!user) {
             res.status(404).json({ success: false, message: "User not found" });
             return;
@@ -246,7 +246,7 @@ const getLikeEvent = async (req, res) => {
     try {
         const { userId: user_id } = req.user;
         let likes = await db_connect_1.User.findOne({
-            where: { id: user_id },
+            where: { user_id: user_id },
             attributes: ["likes"],
         });
         if (!likes) {
@@ -340,7 +340,7 @@ const reserveEvent = async (req, res) => {
     }
 };
 exports.reserveEvent = reserveEvent;
-const fetchVisitedEvents = async (req, res) => {
+const getVisited = async (req, res) => {
     try {
         const { userId: user_id } = req.user;
         const user = await db_connect_1.User.findByPk(user_id);
@@ -362,6 +362,7 @@ const fetchVisitedEvents = async (req, res) => {
                 },
                 {
                     model: db_connect_1.Reviews,
+                    required: false,
                     where: {
                         user_id: user_id,
                     },
@@ -381,7 +382,7 @@ const fetchVisitedEvents = async (req, res) => {
         res.status(500).json({ success: false, message: "Failed to visit event" });
     }
 };
-exports.fetchVisitedEvents = fetchVisitedEvents;
+exports.getVisited = getVisited;
 const addReviews = async (req, res) => {
     try {
         const { userId: user_id } = req.user;
@@ -402,7 +403,7 @@ const addReviews = async (req, res) => {
                 user_id,
                 event_id,
                 comment,
-                date: new Date(),
+                date: new Date().toDateString(),
                 time: new Date().toLocaleTimeString(),
                 avg_rating: rating,
                 quality_of_event,
@@ -444,12 +445,17 @@ const getReviews = async (req, res) => {
         if (user_id) {
             query.user_id = user_id;
         }
-        const reviews = await db_connect_1.Reviews.findAll({
-            where: query,
+        const reviews = await db_connect_1.ReservedEvent.findAll({
+            where: {
+                ...query,
+                date_to: {
+                    [sequelize_1.Op.lt]: new Date(),
+                },
+            },
             include: [
                 {
                     model: db_connect_1.Event,
-                    required: false,
+                    required: true,
                     attributes: [
                         "event_id",
                         "title",
@@ -459,11 +465,21 @@ const getReviews = async (req, res) => {
                         "description",
                         "image_urls",
                         "subtext",
+                        "avg_rating",
+                        "no_reviews",
+                    ],
+                    include: [
+                        {
+                            model: db_connect_1.Reviews,
+                            required: false,
+                            where: {
+                                user_id: user_id,
+                            },
+                        },
                     ],
                 },
             ],
             limit: 5,
-            attributes: ["time", "date", "comment", "avg_rating"],
         });
         if (!reviews) {
             res.status(404).json({ success: false, message: "No reviews found" });
@@ -472,7 +488,7 @@ const getReviews = async (req, res) => {
         res.status(200).json({
             success: true,
             message: "Reviews retrieved successfully",
-            reviews: reviews,
+            event: reviews,
         });
     }
     catch (error) {
@@ -515,13 +531,6 @@ const getRecommendation = async (req, res) => {
                 },
             ],
         });
-        if (!recommendation || recommendation.length === 0) {
-            res.status(404).json({
-                success: false,
-                message: "Please add your interest in setting to let us find some suggestion for you",
-            });
-            return;
-        }
         res.status(200).json({
             success: true,
             message: "Recommendation retrieved successfully",
@@ -692,3 +701,75 @@ const rescheduleEvent = async (req, res) => {
     }
 };
 exports.rescheduleEvent = rescheduleEvent;
+const utility = async (req, res) => {
+    try {
+        const { userId: user_id } = req.user;
+        const { event_id, utility } = req.body;
+        const user = await db_connect_1.User.findByPk(user_id);
+        if (!user) {
+            res.status(404).json({ success: false, message: "User not found" });
+            return;
+        }
+        let isUtility = await db_connect_1.Event.findOne({
+            where: { event_id },
+        });
+        isUtility?.increaseNoReviews(event_id);
+        res.status(200).json({
+            success: true,
+            message: "Utility Added successfully",
+        });
+    }
+    catch (error) {
+        console.error("Error adding utility:", error);
+        res.status(500).json({ success: false, message: "Failed to add utility" });
+    }
+};
+exports.utility = utility;
+const updateLatituteLongitude = async (req, res) => {
+    try {
+        const { userId: user_id } = req.user;
+        const { curr_latitute, curr_longitude } = req.body;
+        const user = await db_connect_1.User.findByPk(user_id);
+        if (!user) {
+            res.status(404).json({ success: false, message: "User not found" });
+            return;
+        }
+        await user.update({ curr_latitute, curr_longitude });
+        res.status(200).json({
+            success: true,
+            message: "Latitude and Longitude updated successfully",
+        });
+    }
+    catch (error) {
+        console.error("Error updating latitude and longitude:", error);
+        res.status(500).json({
+            success: false,
+            message: "Failed to update latitude and longitude",
+        });
+    }
+};
+exports.updateLatituteLongitude = updateLatituteLongitude;
+const getLatituteLongitude = async (req, res) => {
+    try {
+        const { userId: user_id } = req.user;
+        const user = await db_connect_1.User.findByPk(user_id);
+        if (!user) {
+            res.status(404).json({ success: false, message: "User not found" });
+            return;
+        }
+        res.status(200).json({
+            success: true,
+            message: "Latitude and Longitude retrieved successfully",
+            curr_latitute: user.curr_latitute,
+            curr_longitude: user.curr_longitude,
+        });
+    }
+    catch (error) {
+        console.error("Error fetching latitude and longitude:", error);
+        res.status(500).json({
+            success: false,
+            message: "Failed to retrieve latitude and longitude",
+        });
+    }
+};
+exports.getLatituteLongitude = getLatituteLongitude;

@@ -19,7 +19,7 @@ export const loginUser = async (req: Request, res: Response): Promise<void> => {
     }
 
     const token = jwt.sign(
-      { userId: user.id, username: user.username, name: user.fullname },
+      { userId: user.user_id, username: user.username, name: user.fullname },
       process.env.JWT_SECRET || "default_secret_key",
       { expiresIn: "30h" }
     );
@@ -29,7 +29,7 @@ export const loginUser = async (req: Request, res: Response): Promise<void> => {
       message: "Login successful",
       token,
       username: user.username,
-      user_id: user.id,
+      user_id: user.user_id,
       fullname: user.fullname,
     });
   } catch (error) {
@@ -72,9 +72,10 @@ export const userSignup = async (
 
       const user = await Auth.create(
         {
+          fullname: name,
           username,
           password,
-          user_id: Users.id,
+          user_id: Users.user_id,
         },
         { transaction: t }
       );

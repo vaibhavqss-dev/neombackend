@@ -1,8 +1,27 @@
-import { Sequelize, DataTypes } from "sequelize";
+import { Sequelize, DataTypes, Model, Optional } from "sequelize";
 
-export default (sequelize: Sequelize) => {
-  const TrendingActivity = sequelize.define<any>(
-    "trending_activity",
+interface TrendingActivityAttributes {
+  id: number;
+  event_id: number;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
+interface TrendingActivityCreationAttributes
+  extends Optional<TrendingActivityAttributes, "id"> {}
+
+class TrendingActivity extends Model<
+  TrendingActivityAttributes,
+  TrendingActivityCreationAttributes
+> {
+  declare id: number;
+  declare event_id: number;
+  declare readonly createdAt: Date;
+  declare readonly updatedAt: Date;
+}
+
+export default (sequelize: Sequelize): typeof TrendingActivity => {
+  TrendingActivity.init(
     {
       id: {
         type: DataTypes.INTEGER,
@@ -12,9 +31,11 @@ export default (sequelize: Sequelize) => {
       event_id: {
         type: DataTypes.INTEGER,
         allowNull: false,
-      }
+      },
     },
     {
+      sequelize,
+      modelName: "trending_activity",
       timestamps: true,
     }
   );
