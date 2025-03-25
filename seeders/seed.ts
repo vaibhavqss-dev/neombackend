@@ -2,6 +2,7 @@ import { sequelize } from "../db/db_connect";
 import {
   seedEvents,
   seedlogs,
+  seedNotifications,
   seedRecommendations,
   seedReservedEvents,
   seedReviews,
@@ -30,6 +31,7 @@ async function runSeeders() {
     await seedTrendingActivity();
     await seedlogs();
     await seedRecommendations();
+    await seedNotifications();
 
     console.log("All seeders completed successfully!");
     process.exit(0);

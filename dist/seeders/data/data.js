@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.recommendations = exports.logs = exports.trending_activity = exports.reserved_events = exports.reviews = exports.signup = exports.events = void 0;
+exports.notification = exports.recommendations = exports.logs = exports.trending_activity = exports.reserved_events = exports.reviews = exports.signup = exports.events = void 0;
 exports.events = [
     {
         title: "Neom Golf Championship",
@@ -705,4 +705,19 @@ exports.recommendations = [
         user_id: 1,
         event_type: "Food",
     },
+];
+const notifications = {
+    type: "notification",
+    message: ` Your Scheduled Event could not be hold as mentioned, would you like to reschedule?`,
+    msgid: 1,
+    event_id: 2,
+    event_name: "Event 2",
+};
+exports.notification = [
+    {
+        user_id: 1,
+        description: JSON.stringify(notifications),
+        is_read: false,
+        message_id: 1,
+    }
 ];

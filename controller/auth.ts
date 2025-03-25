@@ -66,7 +66,10 @@ export const userSignup = async (
           likes: [],
           profile_img:
             "https://oplsgvveavucoyuifbte.supabase.co/storage/v1/object/public/neom-images/assests/profilePic.png",
+            curr_latitute: "0",
+            curr_longitude: "0",
         },
+         
         { transaction: t }
       );
 

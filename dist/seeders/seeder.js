@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.seedRecommendations = exports.seedlogs = exports.seedTrendingActivity = exports.seedReviews = exports.seedReservedEvents = exports.seedsignup = void 0;
+exports.seedNotifications = exports.seedRecommendations = exports.seedlogs = exports.seedTrendingActivity = exports.seedReviews = exports.seedReservedEvents = exports.seedsignup = void 0;
 exports.seedEvents = seedEvents;
 const db_connect_1 = require("../db/db_connect");
 const data_1 = require("./data/data");
@@ -154,3 +154,20 @@ const seedRecommendations = async () => {
     }
 };
 exports.seedRecommendations = seedRecommendations;
+const seedNotifications = async () => {
+    try {
+        for (const notificationData of data_1.notification) {
+            try {
+                const notification = await db_connect_1.Notifications.create(notificationData);
+                console.log(`Notification created with ID: ${notification.notification_id}`);
+            }
+            catch (err) {
+                console.error("Error creating notification:", err);
+            }
+        }
+    }
+    catch (err) {
+        console.error("Error seeding notification data:", err);
+    }
+};
+exports.seedNotifications = seedNotifications;

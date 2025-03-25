@@ -1,13 +1,13 @@
 import express from "express";
 import cors from "cors";
 import bodyParser from "body-parser";
-import dotenv from "dotenv";
-dotenv.config();
+import dotenv from "dotenv"; 
+dotenv.config(); 
 import router from "./router/router";
 import { testConnection } from "./db/db_connect";
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3000; 
 
 app.use(
   cors({

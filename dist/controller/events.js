@@ -198,6 +198,10 @@ const suggestAnotherEvent = async (_req, res) => {
             ],
             order: [[db_connect_1.sequelize.cast(db_connect_1.sequelize.json("time[0]"), "time"), "ASC"]],
         });
+        if (!suggestedEvent) {
+            res.status(404).json({ success: false, message: "No New events found" });
+            return;
+        }
         res.status(200).json({ success: true, event: suggestedEvent });
     }
     catch (error) {

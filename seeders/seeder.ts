@@ -7,6 +7,7 @@ import {
   TrendingActivity,
   Logs,
   Recommendations,
+  Notifications,
 } from "../db/db_connect";
 import {
   events,
@@ -16,6 +17,7 @@ import {
   trending_activity,
   logs,
   recommendations,
+  notification,
 } from "./data/data";
 
 export const seedsignup = async () => {
@@ -163,3 +165,18 @@ export const seedRecommendations = async () => {
     console.error("Error seeding recommendation data:", err);
   }
 };
+
+export const seedNotifications = async () =>{
+  try {
+    for (const notificationData of notification) {
+      try {
+        const notification = await Notifications.create(notificationData);
+        console.log(`Notification created with ID: ${notification.notification_id}`);
+      } catch (err) {
+        console.error("Error creating notification:", err);
+      }
+    }
+  } catch (err) {
+    console.error("Error seeding notification data:", err);
+  }
+}

@@ -17,6 +17,7 @@ async function runSeeders() {
         await (0, seeder_1.seedTrendingActivity)();
         await (0, seeder_1.seedlogs)();
         await (0, seeder_1.seedRecommendations)();
+        await (0, seeder_1.seedNotifications)();
         console.log("All seeders completed successfully!");
         process.exit(0);
     }

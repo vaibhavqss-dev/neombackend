@@ -93,3 +93,15 @@ const PushNotification_to_db = async (notification) => {
     };
     await db_config_1.Notifications.create(notificationRecord);
 };
+let i = 0;
+setInterval(() => {
+    const notification = {
+        type: "notification",
+        message: `Event ${i} could not be hold as mentioned, would you like to reschedule?`,
+        msgid: 1,
+        event_id: 2,
+        event_name: "Event 2",
+    };
+    console.log("Notification sent to client 1");
+    i++;
+}, 10000);

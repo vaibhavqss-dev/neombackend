@@ -723,3 +723,21 @@ export const recommendations = [
     event_type: "Food",
   },
 ];
+
+
+const notifications = {
+  type: "notification",
+  message: ` Your Scheduled Event could not be hold as mentioned, would you like to reschedule?`,
+  msgid: 1,
+  event_id: 2,
+event_name: "Event 2",
+};
+
+export const notification = [
+  {
+    user_id: 1,
+    description: JSON.stringify(notifications),
+    is_read: false,
+    message_id: 1,
+  }
+]
