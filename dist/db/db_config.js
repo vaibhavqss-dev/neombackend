@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Vibometer = exports.Recommendations = exports.TrendingActivity = exports.Event = exports.Reviews = exports.Logs = exports.ReservedEvent = exports.Setting = exports.User = exports.Auth = void 0;
+exports.Notifications = exports.Vibometer = exports.Recommendations = exports.TrendingActivity = exports.Event = exports.Reviews = exports.Logs = exports.ReservedEvent = exports.Setting = exports.User = exports.Auth = void 0;
 const auth_1 = __importDefault(require("../models/auth"));
 const user_1 = __importDefault(require("../models/user"));
 const setting_1 = __importDefault(require("../models/setting"));
@@ -15,6 +15,7 @@ const Trending_activity_1 = __importDefault(require("../models/Trending_activity
 const recommendations_1 = __importDefault(require("../models/recommendations"));
 const vibometer_1 = __importDefault(require("../models/vibometer"));
 const database_1 = require("../config/database");
+const notifications_1 = __importDefault(require("../models/notifications"));
 const Auth = (0, auth_1.default)(database_1.sequelize);
 exports.Auth = Auth;
 const User = (0, user_1.default)(database_1.sequelize);
@@ -35,6 +36,8 @@ const Recommendations = (0, recommendations_1.default)(database_1.sequelize);
 exports.Recommendations = Recommendations;
 const Vibometer = (0, vibometer_1.default)(database_1.sequelize);
 exports.Vibometer = Vibometer;
+const Notifications = (0, notifications_1.default)(database_1.sequelize);
+exports.Notifications = Notifications;
 User.hasOne(Auth, {
     foreignKey: "user_id",
     onDelete: "CASCADE",
@@ -57,7 +60,7 @@ Setting.belongsTo(User, {
 });
 User.addHook("afterCreate", async (user, options) => {
     await Setting.create({
-        user_id: user.user_id,
+        user_id: user.id,
     }, {
         transaction: options.transaction,
     });

@@ -10,6 +10,7 @@ import {
   Event,
   TrendingActivity,
   Recommendations,
+  Notifications
 } from "./db_config";
  
 async function testConnection() {
@@ -36,4 +37,5 @@ export {
   Event,
   TrendingActivity,
   Recommendations,
+  Notifications
 };

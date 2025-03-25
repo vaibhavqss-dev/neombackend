@@ -35,6 +35,8 @@ import {
   utility,
   updateLatituteLongitude,
   getLatituteLongitude,
+  readNotification,
+  deleteNotification,
 } from "../controller/user";
 
 router
@@ -62,7 +64,15 @@ router
   .get(getLatituteLongitude);
 
 import { notification } from "../controller/notification";
-router.route("/user/notification").get(notification);
+router
+  .route("/user/notification")
+  .get(notification)
+  .patch(readNotification)
+  .delete(deleteNotification);
+// router
+//   .route("/user/notification")
+//   .patch(readNotification)
+//   .delete(deleteNotification);
 
 import {
   deleteEvent,
@@ -71,6 +81,7 @@ import {
   suggestAnotherEvent,
   updateEvent,
 } from "../controller/events";
+import { read } from "fs";
 router
   .route("/events")
   .post(postEvent)

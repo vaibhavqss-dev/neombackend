@@ -9,6 +9,7 @@ import {
   Recommendations,
   TrendingActivity,
   Setting,
+  Notifications,
 } from "../db/db_connect";
 import { Op } from "sequelize";
 
@@ -879,5 +880,66 @@ export const getLatituteLongitude = async (
       success: false,
       message: "Failed to retrieve latitude and longitude",
     });
+  }
+};
+
+// read notification
+export const readNotification = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const { userId: user_id } = req.user;
+    const { message_id } = req.body;
+    const user = await User.findByPk(user_id);
+    if (!user) {
+      res.status(404).json({ success: false, message: "User not found" });
+      return;
+    }
+    const notification = await Notifications.findOne({
+      where: { user_id, message_id },
+    });
+    if (!notification) {
+      res.status(404).json({
+        success: false,
+        message: "Notification not found",
+      });
+      return;
+    }
+    const updated = await notification.update({ is_read: true });
+    res.status(200).json({
+      success: true,
+      message: "Notification marked read successfully",
+    });
+  } catch (error) {
+    console.error("Error reading notification:", error);
+    res
+      .status(500)
+      .json({ success: false, message: "Failed to read notification" });
+  }
+};
+
+// delete all notification
+export const deleteNotification = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const { userId: user_id } = req.user;
+    const user = await User.findByPk(user_id);
+    if (!user) {
+      res.status(404).json({ success: false, message: "User not found" });
+      return;
+    }
+    await Notifications.destroy({ where: { user_id } });
+    res.status(200).json({
+      success: true,
+      message: "All Notifications deleted successfully",
+    });
+  } catch (error) {
+    console.error("Error deleting notification:", error);
+    res
+      .status(500)
+      .json({ success: false, message: "Failed to delete notification" });
   }
 };

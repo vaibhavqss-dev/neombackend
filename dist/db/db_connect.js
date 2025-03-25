@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Recommendations = exports.TrendingActivity = exports.Event = exports.Reviews = exports.Logs = exports.Setting = exports.ReservedEvent = exports.User = exports.Auth = exports.sequelize = void 0;
+exports.Notifications = exports.Recommendations = exports.TrendingActivity = exports.Event = exports.Reviews = exports.Logs = exports.Setting = exports.ReservedEvent = exports.User = exports.Auth = exports.sequelize = void 0;
 exports.testConnection = testConnection;
 const database_1 = require("../config/database");
 Object.defineProperty(exports, "sequelize", { enumerable: true, get: function () { return database_1.sequelize; } });
@@ -14,6 +14,7 @@ Object.defineProperty(exports, "Reviews", { enumerable: true, get: function () {
 Object.defineProperty(exports, "Event", { enumerable: true, get: function () { return db_config_1.Event; } });
 Object.defineProperty(exports, "TrendingActivity", { enumerable: true, get: function () { return db_config_1.TrendingActivity; } });
 Object.defineProperty(exports, "Recommendations", { enumerable: true, get: function () { return db_config_1.Recommendations; } });
+Object.defineProperty(exports, "Notifications", { enumerable: true, get: function () { return db_config_1.Notifications; } });
 async function testConnection() {
     try {
         await database_1.sequelize.authenticate();

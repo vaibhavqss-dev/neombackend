@@ -39,7 +39,11 @@ router
     .patch(user_1.updateLatituteLongitude)
     .get(user_1.getLatituteLongitude);
 const notification_1 = require("../controller/notification");
-router.route("/user/notification").get(notification_1.notification);
+router
+    .route("/user/notification")
+    .get(notification_1.notification)
+    .patch(user_1.readNotification)
+    .delete(user_1.deleteNotification);
 const events_1 = require("../controller/events");
 router
     .route("/events")

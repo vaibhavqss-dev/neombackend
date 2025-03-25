@@ -7,8 +7,11 @@ import ReviewsModel from "../models/reviews";
 import EventModel from "../models/event";
 import TrendingActivityModel from "../models/Trending_activity";
 import recommendationsModel from "../models/recommendations";
+
 import vibometerModel from "../models/vibometer";
 import { sequelize } from "../config/database";
+
+import notificationsModel from "../models/notifications";
 
 const Auth = AuthModel(sequelize);
 const User = UserModel(sequelize);
@@ -20,6 +23,7 @@ const Event = EventModel(sequelize);
 const TrendingActivity = TrendingActivityModel(sequelize);
 const Recommendations = recommendationsModel(sequelize);
 const Vibometer = vibometerModel(sequelize);
+const Notifications = notificationsModel(sequelize);
 
 User.hasOne(Auth, {
   foreignKey: "user_id",
@@ -44,10 +48,11 @@ Setting.belongsTo(User, {
 });
 
 import { User as usertype } from "../models/user";
-User.addHook("afterCreate", async (user: usertype, options) => {
+// Hook to create default settings when a user is created
+User.addHook("afterCreate", async (user: any, options) => {
   await Setting.create(
     {
-      user_id: user.user_id,
+      user_id: user.id,
     },
     {
       transaction: options.transaction,
@@ -156,4 +161,5 @@ export {
   TrendingActivity,
   Recommendations,
   Vibometer,
+  Notifications,
 };

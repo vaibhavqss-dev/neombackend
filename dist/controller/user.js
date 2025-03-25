@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getLatituteLongitude = exports.updateLatituteLongitude = exports.utility = exports.rescheduleEvent = exports.vibometer = exports.getReservedEvents = exports.getTrendingActivity = exports.getRecommendation = exports.getReviews = exports.addReviews = exports.getVisited = exports.reserveEvent = exports.addInterested = exports.getLikeEvent = exports.UnlikeEvent = exports.likeEvent = exports.changeSettings = exports.getUserSettings = exports.deleteUserProfile = exports.getUserProfile = exports.updateProfile_img = exports.updateProfile = void 0;
+exports.deleteNotification = exports.readNotification = exports.getLatituteLongitude = exports.updateLatituteLongitude = exports.utility = exports.rescheduleEvent = exports.vibometer = exports.getReservedEvents = exports.getTrendingActivity = exports.getRecommendation = exports.getReviews = exports.addReviews = exports.getVisited = exports.reserveEvent = exports.addInterested = exports.getLikeEvent = exports.UnlikeEvent = exports.likeEvent = exports.changeSettings = exports.getUserSettings = exports.deleteUserProfile = exports.getUserProfile = exports.updateProfile_img = exports.updateProfile = void 0;
 const db_connect_1 = require("../db/db_connect");
 const sequelize_1 = require("sequelize");
 const updateProfile = async (req, res) => {
@@ -773,3 +773,58 @@ const getLatituteLongitude = async (req, res) => {
     }
 };
 exports.getLatituteLongitude = getLatituteLongitude;
+const readNotification = async (req, res) => {
+    try {
+        const { userId: user_id } = req.user;
+        const { message_id } = req.body;
+        const user = await db_connect_1.User.findByPk(user_id);
+        if (!user) {
+            res.status(404).json({ success: false, message: "User not found" });
+            return;
+        }
+        const notification = await db_connect_1.Notifications.findOne({
+            where: { user_id, message_id },
+        });
+        if (!notification) {
+            res.status(404).json({
+                success: false,
+                message: "Notification not found",
+            });
+            return;
+        }
+        const updated = await notification.update({ is_read: true });
+        res.status(200).json({
+            success: true,
+            message: "Notification marked read successfully",
+        });
+    }
+    catch (error) {
+        console.error("Error reading notification:", error);
+        res
+            .status(500)
+            .json({ success: false, message: "Failed to read notification" });
+    }
+};
+exports.readNotification = readNotification;
+const deleteNotification = async (req, res) => {
+    try {
+        const { userId: user_id } = req.user;
+        const user = await db_connect_1.User.findByPk(user_id);
+        if (!user) {
+            res.status(404).json({ success: false, message: "User not found" });
+            return;
+        }
+        await db_connect_1.Notifications.destroy({ where: { user_id } });
+        res.status(200).json({
+            success: true,
+            message: "All Notifications deleted successfully",
+        });
+    }
+    catch (error) {
+        console.error("Error deleting notification:", error);
+        res
+            .status(500)
+            .json({ success: false, message: "Failed to delete notification" });
+    }
+};
+exports.deleteNotification = deleteNotification;
