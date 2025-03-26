@@ -21,6 +21,8 @@ interface EventAttributes {
   available_seats?: number;
   createdAt?: Date;
   updatedAt?: Date;
+
+  event_price?: number;
 }
 
 interface EventCreationAttributes
@@ -67,4 +69,6 @@ export class Event extends Model<EventAttributes, EventCreationAttributes> {
   declare available_seats?: number;
   declare readonly createdAt: Date;
   declare readonly updatedAt: Date;
+
+  declare event_price?: number;
 }

@@ -15,7 +15,7 @@ export default (sequelize: Sequelize): typeof Event => {
         allowNull: false,
       },
       description: {
-        type: DataTypes.TEXT,
+        type: DataTypes.TEXT, 
         allowNull: false,
       },
       subtext: {
@@ -33,11 +33,11 @@ export default (sequelize: Sequelize): typeof Event => {
         defaultValue: [],
       },
       latitude: {
-        type: DataTypes.DECIMAL(10, 7), // More appropriate for coordinates
+        type: DataTypes.DECIMAL(10, 7),
         allowNull: false,
       },
       longitude: {
-        type: DataTypes.DECIMAL(10, 7), // More appropriate for coordinates
+        type: DataTypes.DECIMAL(10, 7),
         allowNull: false,
       },
       location: {
@@ -85,11 +85,29 @@ export default (sequelize: Sequelize): typeof Event => {
         type: DataTypes.INTEGER,
         allowNull: true,
       },
+      event_price: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+        defaultValue: 2000,
+      },
     },
     {
       sequelize,
       modelName: "event",
       timestamps: true,
+      indexes: [
+        {
+          name: "idx_top_events",
+          fields: [
+            { name: "avg_rating", order: "DESC" },
+            { name: "no_reviews", order: "DESC" },
+          ],
+        },
+        {
+          name: "idx_location",
+          fields: ["latitude", "longitude"],
+        },
+      ],
     }
   );
 

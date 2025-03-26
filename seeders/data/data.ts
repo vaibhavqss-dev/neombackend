@@ -727,10 +727,11 @@ export const recommendations = [
 
 const notifications = {
   type: "notification",
-  message: ` Your Scheduled Event could not be hold as mentioned, would you like to reschedule?`,
+  message: `“We regret to inform you that the current weather conditions are not conducive for a Desert Drone Race.
+Would you like to reschedule or cancel your golf session for today?”`,
   msgid: 1,
   event_id: 2,
-event_name: "Event 2",
+event_name: "Desert Drone Race",
 };
 
 export const notification = [

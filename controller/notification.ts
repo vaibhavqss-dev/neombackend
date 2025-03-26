@@ -1,5 +1,7 @@
 import { Request, Response } from "express";
 import { Notifications } from "../db/db_config";
+// Remove querystring import as we'll use JSON.stringify directly
+// import { stringify } from "querystring";
 const clients: Map<string, Response> = new Map();
 
 // SSEs
@@ -108,25 +110,24 @@ const PushNotification_to_db = async (notification: any) => {
   await Notifications.create(notificationRecord);
 };
 
-let i = 0;
- setInterval(() => {
-   const notification = {
-     type: "notification",
-     message: `Event ${i} could not be hold as mentioned, would you like to reschedule?`,
-     msgid: 1,
-     event_id: 2,
- event_name: "Event 2",
-   };
+// let i = 0;
+// setInterval(() => {
+//   const notification = {
+//     type: "notification",
+//     message: `Event ${i} could not be hold as mentioned, would you like to reschedule?`,
+//     msgid: 1,
+//     event_id: 2,
+// event_name: "Event 2",
+//   };
 
-   // sendNotificationToClient("1", {
-   //   type: "notification",
-   //   message: `Event 2 could not be hold as mentioned, would you like to reschedule?`,
-   //   msgid: 1,
-   //   event_id: 2,
-   //   event_name: "Event 2",
-   // });
-   
-   //PushNotification_to_db(notification);
-   console.log("Notification sent to client 1");
-   i++;
- }, 10000);
+//   // sendNotificationToClient("1", {
+//   //   type: "notification",
+//   //   message: `Event 2 could not be hold as mentioned, would you like to reschedule?`,
+//   //   msgid: 1,
+//   //   event_id: 2,
+//   //   event_name: "Event 2",
+//   // });
+//   PushNotification_to_db(notification);
+//   console.log("Sent notification to client 1");
+//   i++;
+// }, 10000);

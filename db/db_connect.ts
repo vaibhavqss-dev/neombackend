@@ -1,5 +1,5 @@
 import { sequelize } from "../config/database";
- 
+
 import {
   Auth,
   User,

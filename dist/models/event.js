@@ -80,10 +80,28 @@ exports.default = (sequelize) => {
             type: sequelize_1.DataTypes.INTEGER,
             allowNull: true,
         },
+        event_price: {
+            type: sequelize_1.DataTypes.INTEGER,
+            allowNull: true,
+            defaultValue: 2000,
+        },
     }, {
         sequelize,
         modelName: "event",
         timestamps: true,
+        indexes: [
+            {
+                name: "idx_top_events",
+                fields: [
+                    { name: "avg_rating", order: "DESC" },
+                    { name: "no_reviews", order: "DESC" },
+                ],
+            },
+            {
+                name: "idx_location",
+                fields: ["latitude", "longitude"],
+            },
+        ],
     });
     return Event_1.Event;
 };

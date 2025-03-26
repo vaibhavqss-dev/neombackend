@@ -21,8 +21,8 @@ export class Notification
   declare is_read: boolean;
   declare message_id: number;
 
-  public readonly createdAt!: Date;
-  public readonly updatedAt!: Date;
+  declare readonly createdAt: Date;
+  declare readonly updatedAt: Date;
 }
 
 export default (sequelize: Sequelize): typeof Notification => {
@@ -38,7 +38,7 @@ export default (sequelize: Sequelize): typeof Notification => {
         allowNull: false,
       },
       description: {
-        type: DataTypes.STRING,
+        type: DataTypes.TEXT,
         allowNull: false,
       },
       is_read: {
